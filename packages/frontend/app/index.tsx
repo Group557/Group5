@@ -2,7 +2,6 @@ import { StyleSheet, Text, View } from "react-native";
 
 export default function HomeScreen() {
   return (
-
     <View style={styles.page}>
       <View style={styles.logoBox}>
         <Text style={styles.logo}>PolyFit</Text>
@@ -39,45 +38,45 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   page: {
-    padding: 20,
+    padding: 20
   },
   logoBox: {
     padding: 15,
-    marginBottom: 15,
+    marginBottom: 15
   },
   logo: {
     fontSize: 22,
-    fontWeight: "bold",
+    fontWeight: "bold"
   },
   helloBox: {
     borderWidth: 1,
     padding: 15,
-    marginBottom: 15,
+    marginBottom: 15
   },
   helloText: {
     fontSize: 25,
-    fontWeight: "bold",
+    fontWeight: "bold"
   },
   streakBox: {
     borderWidth: 1,
     padding: 15,
-    marginBottom: 25,
+    marginBottom: 25
   },
   largeBox: {
     borderWidth: 1,
     height: 150,
     padding: 15,
-    marginBottom: 20,
+    marginBottom: 20
   },
   navBox: {
     borderWidth: 1,
     padding: 15,
     flexDirection: "row",
-    justifyContent: "space-between",
-  },
+    justifyContent: "space-between"
+  }
 });
 
-   /* <View>
+/* <View>
       <View>
         <Text>PolyFit</Text>
       </View>
