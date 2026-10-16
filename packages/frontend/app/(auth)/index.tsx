@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import { useState } from "react";
-import { Text, TextInput, View } from "react-native";
+import { Pressable, Text, TextInput, View } from "react-native";
 import { supabase } from "../../../../utils/supabase";
 
 async function Login() {
@@ -74,7 +74,7 @@ export default function HomeScreen() {
 
   return (
     <View>
-      <h1>Account Login/Create an Account</h1>
+      <Text>Account Login/Create an Account</Text>
       <Text>Enter your Cal poly Email</Text>
       <TextInput
         placeholder="Email"
@@ -102,17 +102,18 @@ export default function HomeScreen() {
           padding: 10
         }}
       />
-      <button
+      <Pressable
         style={{
           width: 140,
-          height: 25,
-          fontSize: 13
+          height: 25
         }}
 
-        onClick={handleRegister}>
-        Register
-      </button>
-      <button onClick={handleSignIn}>Sign in</button>
+        onPress={handleRegister}>
+        <Text>Register</Text>
+      </Pressable>
+      <Pressable onPress={handleSignIn}>
+        <Text>Sign in</Text>
+      </Pressable>
       <Text>{message}</Text>
     </View>
   );
