@@ -1,74 +1,28 @@
-# Welcome to your Expo app 👋
+## TEAM WORKFLOW
 
-This is an [Expo](https://expo.dev) project created with
-[`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+### BRANCHING RULES
+1. **NEVER PUSH DIRECTLY TO 'main'.** **IT'S PROTECTED.** ALL CHANGES WILL GO THROUGH A PULL REQUEST.
+2. **ONE ISSUE = ONE BRANCH = ONE PULL REQUEST.**
+3. **BRANCH OFF AN UP-TO-DATE 'main':**
 
-## Get started
+    git checkout main
+    git pull
+    git checkout -b feature/your-feature
 
-1. Install dependencies
+4. **HOW TO NAME BRANCHES: 'feature/<screen-or-feature>'**, FOR EXAMPLE: 'feature/buddy-finder'.
+5. **PULL 'main' INTO YOUR BRANCH EVERY DAY OR TWO.** SO THAT MERGE CONFLICTS REMAIN SMALL.
+6. **OPEN THE PULL REQUEST AS SOON AS A PIECE WORKS.** ADD 'Closes #<issue number>' in the description.
+7. **NOBODY MERGES THEIR OWN PULL REQUEST.** ONE TEAM MEMBER MUST APPROVE OF IT FIRST.
+8. **REVIEWERS:** OPEN THE CHANGES AND **CAREFULLY READ THEM BEFORE APPROVING.** AND **RESOLVE ALL COMMENT THREADS BEFORE MERGING**.
+9. **SHARED FILES: TELL THE GROUP BEFORE CHANGING THEM.**
+10. **DON'T CHANGE REPO SETTINGS** (Settings -> Branches) **WITHOUT TEAM AGREEMENT.**
+11. **WE FOLLOW [CONVENTIONAL COMMITS](https://www.conventionalcommits.org/en/v1.0.0/) FOR COMMIT MESSAGES** 
+  
+### BOARD UPDATES
+- ISSUE STARTS: MOVE TO **IN PROGRESS**
+- PULL REQUESTS OPENED: MOVE TO **IN REVIEW**
+- PULL REQUEST MERGED: MOVE TO **DONE**
+- STUCK ON SOMETHING: ADD THE **BLOCKED** LABEL AND UPDATE IN THE GROUP CHAT.
 
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying
-  out app development with Expo
-
-You can start developing by editing the files inside the **app**
-directory. This project uses
-[file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example**
-directory and create a blank **app** directory where you can
-start developing.
-
-### Other setup steps
-
-- To set up ESLint for linting, run `npx expo lint`, or follow
-  our guide on
-  ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on
-  ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our
-  guide on
-  ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
-
-## Learn more
-
-To learn more about developing your project with Expo, look at
-the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn
-  fundamentals, or go into advanced topics with our
-  [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/):
-  Follow a step-by-step tutorial where you'll create a project
-  that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open
-  source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo
-  users and ask questions.
+### BRANCH OWNERS
+See the **Branch Plan Spreadsheet** to see who owns each branch.
