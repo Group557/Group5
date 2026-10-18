@@ -41,6 +41,8 @@ export default function HomeScreen() {
       });
       if (error) {
         setMessage(error.message);
+        console.log("You got a supabase Error");
+
         return;
       }
       if (!data.session) {
@@ -66,6 +68,7 @@ export default function HomeScreen() {
 
     if (error) {
       setMessage(error.message);
+      console.log("You got a supabase Error");
       return;
     }
 
