@@ -1,6 +1,6 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
-export default function RecCenterScreen(): JSX.Element {
+export default function RecCenterScreen() {
   const handleRecIdPress = () => {
     // TODO: implement rec ID scan-in
   };
