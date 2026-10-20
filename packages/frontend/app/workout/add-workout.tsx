@@ -14,6 +14,20 @@ import {
 } from "react-native";
 
 import { supabase } from "../../../../utils/supabase";
+import {
+  buttons,
+  cards,
+  chips,
+  colors,
+  form,
+  layout,
+  modal,
+  radius,
+  sheet,
+  space,
+  text,
+  typography
+} from "../../theme";
 
 const CATEGORIES = [
   "Cardio / Aerobic",
@@ -219,61 +233,61 @@ export default function AddWorkoutScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.page}
+      style={layout.screen}
       behavior={Platform.OS === "ios" ? "padding" : undefined}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={layout.scrollContent}>
         <Pressable
-          style={styles.backButton}
+          style={buttons.backLink}
           onPress={goBack}>
-          <Text style={styles.backText}>‹ Back</Text>
+          <Text style={buttons.backText}>‹ Back</Text>
         </Pressable>
 
-        <Text style={styles.title}>New Workout</Text>
-        <Text style={styles.subtitle}>
+        <Text style={text.screenTitle}>New Workout</Text>
+        <Text style={[text.subtitle, styles.subtitle]}>
           Name your workout, then select saved exercises from
           your library to include.
         </Text>
 
-        <View style={styles.formCard}>
-          <Text style={styles.label}>Workout name</Text>
+        <View style={cards.card}>
+          <Text style={text.fieldLabel}>Workout name</Text>
           <TextInput
-            style={styles.input}
+            style={form.input}
             placeholder="Example: Leg Day"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={colors.inkPlaceholder}
             value={workoutName}
             onChangeText={setWorkoutName}
           />
 
-          <Text style={styles.label}>Category</Text>
+          <Text style={text.fieldLabel}>Category</Text>
           <Pressable
-            style={styles.select}
+            style={form.select}
             onPress={() => setCategoryOpen(true)}>
             <Text
               style={
                 category
-                  ? styles.selectValue
-                  : styles.selectPlaceholder
+                  ? form.selectValue
+                  : form.selectPlaceholder
               }>
               {category || "Select a category"}
             </Text>
-            <Text style={styles.selectChevron}>⌄</Text>
+            <Text style={form.selectChevron}>⌄</Text>
           </Pressable>
 
-          <Text style={styles.label}>Notes (optional)</Text>
+          <Text style={text.fieldLabel}>Notes (optional)</Text>
           <TextInput
-            style={[styles.input, styles.notesInput]}
+            style={[form.input, styles.notesInput]}
             placeholder="Example: Glute focused lower body"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={colors.inkPlaceholder}
             multiline
             textAlignVertical="top"
             value={description}
             onChangeText={setDescription}
           />
 
-          <Text style={styles.label}>Exercises</Text>
+          <Text style={text.fieldLabel}>Exercises</Text>
 
           {addedExercises.length === 0 ? (
-            <Text style={styles.addedEmptyText}>
+            <Text style={text.caption}>
               No exercises added yet. Tap Browse your exercises
               below to add some.
             </Text>
@@ -285,12 +299,12 @@ export default function AddWorkoutScreen() {
                   styles.addedRow,
                   index === 0 && styles.addedRowFirst
                 ]}>
-                <View style={styles.exerciseRowText}>
-                  <Text style={styles.exerciseName}>
+                <View style={styles.rowText}>
+                  <Text style={text.exerciseName}>
                     {exercise.exercise_name}
                   </Text>
                   {exercise.exercise_category ? (
-                    <Text style={styles.exerciseCategory}>
+                    <Text style={text.exerciseCategory}>
                       {exercise.exercise_category}
                     </Text>
                   ) : null}
@@ -307,13 +321,13 @@ export default function AddWorkoutScreen() {
         </View>
 
         <Pressable
-          style={styles.browseBlock}
+          style={[cards.card, styles.browseBlock]}
           onPress={openLibrary}>
           <View style={styles.browseCardText}>
-            <Text style={styles.browseBlockTitle}>
+            <Text style={text.cardTitle}>
               Browse your exercises
             </Text>
-            <Text style={styles.browseBlockHint}>
+            <Text style={text.hint}>
               Tap to open the Exercise Library
             </Text>
           </View>
@@ -321,16 +335,20 @@ export default function AddWorkoutScreen() {
         </Pressable>
 
         <Pressable
-          style={[styles.saveButton, saving && styles.saveButtonDisabled]}
+          style={[
+            buttons.primary,
+            styles.createButton,
+            saving && buttons.disabled
+          ]}
           disabled={saving}
           onPress={handleCreateWorkout}>
-          <Text style={styles.saveButtonText}>
+          <Text style={styles.createButtonText}>
             {saving ? "Saving..." : "Create Workout"}
           </Text>
         </Pressable>
 
         {saveError ? (
-          <Text style={styles.saveErrorText}>{saveError}</Text>
+          <Text style={text.error}>{saveError}</Text>
         ) : null}
       </ScrollView>
 
@@ -340,17 +358,17 @@ export default function AddWorkoutScreen() {
         animationType="fade"
         onRequestClose={() => setCategoryOpen(false)}>
         <Pressable
-          style={styles.modalBackdrop}
+          style={modal.backdrop}
           onPress={() => setCategoryOpen(false)}>
-          <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>
+          <View style={modal.card}>
+            <Text style={modal.title}>
               Select a category
             </Text>
 
             {CATEGORIES.map((option) => (
               <Pressable
                 key={option}
-                style={styles.modalOption}
+                style={modal.option}
                 onPress={() => {
                   setCategory(option);
                   setCategoryOpen(false);
@@ -358,8 +376,8 @@ export default function AddWorkoutScreen() {
                 <Text
                   style={
                     category === option
-                      ? styles.modalOptionTextActive
-                      : styles.modalOptionText
+                      ? modal.optionTextActive
+                      : modal.optionText
                   }>
                   {option}
                 </Text>
@@ -375,25 +393,25 @@ export default function AddWorkoutScreen() {
         animationType="slide"
         onRequestClose={() => setLibraryOpen(false)}>
         <Pressable
-          style={styles.modalBackdrop}
+          style={modal.backdrop}
           onPress={() => setLibraryOpen(false)}>
           <Pressable
-            style={styles.libraryCard}
+            style={sheet.container}
             onPress={() => {}}>
-            <View style={styles.libraryHeader}>
-              <Text style={styles.modalTitle}>
+            <View style={sheet.header}>
+              <Text style={modal.title}>
                 Exercise Library
               </Text>
               <Pressable onPress={() => setLibraryOpen(false)}>
-                <Text style={styles.libraryClose}>✕</Text>
+                <Text style={sheet.close}>✕</Text>
               </Pressable>
             </View>
 
             <View style={styles.libraryControls}>
               <TextInput
-                style={styles.searchInput}
+                style={[form.input, styles.searchInput]}
                 placeholder="Search exercises..."
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor={colors.inkPlaceholder}
                 value={searchQuery}
                 onChangeText={setSearchQuery}
                 autoCapitalize="none"
@@ -403,9 +421,9 @@ export default function AddWorkoutScreen() {
               <View style={styles.filterRow}>
                 <Pressable
                   style={[
-                    styles.filterButton,
+                    chips.chip,
                     filter === "favorites" &&
-                      styles.filterButtonActive
+                      chips.chipActive
                   ]}
                   onPress={() => {
                     const turningOn = filter !== "favorites";
@@ -419,18 +437,18 @@ export default function AddWorkoutScreen() {
                   }}>
                   <Text
                     style={[
-                      styles.filterButtonText,
+                      chips.chipText,
                       filter === "favorites" &&
-                        styles.filterButtonTextActive
+                        chips.chipTextActive
                     ]}>
                     ❤️ Favorites
                   </Text>
                 </Pressable>
 
                 <Pressable
-                  style={styles.filterButton}
+                  style={chips.chip}
                   onPress={() => setFilterOpen(true)}>
-                  <Text style={styles.filterButtonText}>
+                  <Text style={chips.chipText}>
                     {selectedFilterCategory
                       ? selectedFilterCategory
                       : "Filter"}
@@ -454,19 +472,19 @@ export default function AddWorkoutScreen() {
                     <View
                       key={exercise.id}
                       style={[
-                        styles.exerciseRow,
+                        cards.row,
                         exercise.is_favorite &&
-                          styles.exerciseRowFavorite
+                          styles.rowFavorite
                       ]}>
-                      <View style={styles.exerciseRowMain}>
+                      <View style={styles.rowMain}>
                         <Pressable
-                          style={styles.exerciseRowText}
+                          style={styles.rowText}
                           onPress={() => toggleExpanded(exercise.id)}>
-                          <Text style={styles.exerciseName}>
+                          <Text style={text.exerciseName}>
                             {exercise.exercise_name}
                           </Text>
                           {exercise.exercise_category ? (
-                            <Text style={styles.exerciseCategory}>
+                            <Text style={text.exerciseCategory}>
                               {exercise.exercise_category}
                             </Text>
                           ) : null}
@@ -505,24 +523,24 @@ export default function AddWorkoutScreen() {
               )}
             </ScrollView>
 
-            <View style={styles.libraryFooter}>
+            <View style={sheet.footer}>
               {!loadingExercises ? (
                 <Pressable
-                  style={styles.addExerciseLink}
+                  style={sheet.link}
                   onPress={() => {
                     setLibraryOpen(false);
                     router.push("/workout/add-exercise");
                   }}>
-                  <Text style={styles.addExerciseLinkText}>
+                  <Text style={sheet.linkText}>
                     + Add an Exercise
                   </Text>
                 </Pressable>
               ) : null}
 
               <Pressable
-                style={styles.doneButton}
+                style={sheet.done}
                 onPress={() => setLibraryOpen(false)}>
-                <Text style={styles.doneButtonText}>
+                <Text style={sheet.doneText}>
                   Done
                 </Text>
               </Pressable>
@@ -537,10 +555,10 @@ export default function AddWorkoutScreen() {
         animationType="fade"
         onRequestClose={() => setFilterOpen(false)}>
         <Pressable
-          style={styles.modalBackdrop}
+          style={modal.backdrop}
           onPress={() => setFilterOpen(false)}>
-          <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>
+          <View style={modal.card}>
+            <Text style={modal.title}>
               Filter by category
             </Text>
 
@@ -548,7 +566,7 @@ export default function AddWorkoutScreen() {
               (option) => (
                 <Pressable
                   key={option}
-                  style={styles.modalOption}
+                  style={modal.option}
                   onPress={() => {
                     setSelectedFilterCategory(option);
                     setFilter("all");
@@ -557,8 +575,8 @@ export default function AddWorkoutScreen() {
                   <Text
                     style={
                       selectedFilterCategory === option
-                        ? styles.modalOptionTextActive
-                        : styles.modalOptionText
+                        ? modal.optionTextActive
+                        : modal.optionText
                     }>
                     {option}
                   </Text>
@@ -568,12 +586,12 @@ export default function AddWorkoutScreen() {
 
             {selectedFilterCategory ? (
               <Pressable
-                style={styles.modalOption}
+                style={modal.option}
                 onPress={() => {
                   setSelectedFilterCategory("");
                   setFilterOpen(false);
                 }}>
-                <Text style={styles.modalOptionText}>
+                <Text style={modal.optionText}>
                   Clear filter
                 </Text>
               </Pressable>
@@ -586,271 +604,50 @@ export default function AddWorkoutScreen() {
 }
 
 const styles = StyleSheet.create({
-  page: {
-    flex: 1,
-    backgroundColor: "#F8F6F0"
-  },
-  content: {
-    padding: 20,
-    paddingTop: 28,
-    paddingBottom: 36
-  },
-  backButton: {
-    marginBottom: 28
-  },
-  backText: {
-    color: "#154734",
-    fontSize: 16,
-    fontWeight: "700"
-  },
-  title: {
-    color: "#154734",
-    fontSize: 30,
-    fontWeight: "800",
-    marginTop: 4
-  },
   subtitle: {
-    color: "#6B7280",
-    fontSize: 14,
-    lineHeight: 20,
-    marginTop: 7,
-    marginBottom: 22
-  },
-  formCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 18,
-    padding: 18
-  },
-  label: {
-    color: "#154734",
-    fontSize: 14,
-    fontWeight: "700",
-    marginBottom: 7,
-    marginTop: 12
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#DCEBE5",
-    borderRadius: 11,
-    backgroundColor: "#FAFCFA",
-    color: "#154734",
-    fontSize: 15,
-    paddingHorizontal: 13,
-    paddingVertical: 12
+    marginBottom: space.xxl
   },
   notesInput: {
     height: 64
   },
-  select: {
-    borderWidth: 1,
-    borderColor: "#DCEBE5",
-    borderRadius: 11,
-    backgroundColor: "#FAFCFA",
-    paddingHorizontal: 13,
-    paddingVertical: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between"
-  },
-  selectValue: {
-    color: "#154734",
-    fontSize: 15
-  },
-  selectPlaceholder: {
-    color: "#9CA3AF",
-    fontSize: 15
-  },
-  selectChevron: {
-    color: "#154734",
-    fontSize: 18,
-    marginTop: -4
-  },
   browseBlock: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 18,
-    padding: 18,
-    marginTop: 16,
+    marginTop: space.lg,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between"
   },
-  browseBlockTitle: {
-    color: "#154734",
-    fontSize: 16,
-    fontWeight: "800"
+  browseCardText: {
+    flex: 1
   },
-  browseBlockHint: {
-    color: "#6B7280",
-    fontSize: 13,
-    marginTop: 4
+  browseCardChevron: {
+    color: colors.ink,
+    fontSize: 26,
+    fontWeight: "700",
+    marginLeft: space.md
   },
   addedRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     borderBottomWidth: 1,
-    borderBottomColor: "#F0F4F2",
-    paddingVertical: 12
+    borderBottomColor: colors.divider,
+    paddingVertical: space.md
   },
   addedRowFirst: {
     paddingTop: 0
   },
   addedRemove: {
-    color: "#154734",
+    color: colors.ink,
     fontSize: 18,
     fontWeight: "700",
     paddingHorizontal: 6
   },
-  addedEmptyText: {
-    color: "#6B7280",
-    fontSize: 13,
-    lineHeight: 19,
-    paddingBottom: 4
-  },
-  browseCardText: {
-    flex: 1
-  },
-  browseCardChevron: {
-    color: "#154734",
-    fontSize: 26,
-    fontWeight: "700",
-    marginLeft: 12
-  },
-  libraryFooter: {
-    paddingHorizontal: 20,
-    paddingTop: 8,
-    paddingBottom: 24,
-    gap: 10
-  },
-  addExerciseLink: {
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    backgroundColor: "#DCEBE5",
-    alignItems: "center"
-  },
-  addExerciseLinkText: {
-    color: "#154734",
-    fontSize: 14,
-    fontWeight: "800"
-  },
-  doneButton: {
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    backgroundColor: "#154734",
-    alignItems: "center"
-  },
-  doneButtonText: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "800"
-  },
-  saveButton: {
-    backgroundColor: "#154734",
-    borderRadius: 14,
-    paddingVertical: 18,
-    alignItems: "center",
-    marginTop: 30,
-    marginBottom: 8,
-    shadowColor: "#154734",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 4
-  },
-  saveButtonText: {
-    color: "#FFFFFF",
-    fontSize: 17,
-    fontWeight: "800",
-    letterSpacing: 0.3
-  },
-  saveButtonDisabled: {
-    opacity: 0.6
-  },
-  saveErrorText: {
-    color: "#B91C1C",
-    fontSize: 13,
-    fontWeight: "600",
-    textAlign: "center",
-    marginTop: 12
-  },
-  modalBackdrop: {
-    flex: 1,
-    backgroundColor: "rgba(21, 71, 52, 0.35)",
-    justifyContent: "center",
-    padding: 24
-  },
-  modalCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 18,
-    padding: 18
-  },
-  modalTitle: {
-    color: "#154734",
-    fontSize: 17,
-    fontWeight: "800",
-    marginBottom: 8
-  },
-  modalOption: {
-    paddingVertical: 13,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F0F4F2"
-  },
-  modalOptionText: {
-    color: "#154734",
-    fontSize: 15
-  },
-  modalOptionTextActive: {
-    color: "#154734",
-    fontSize: 15,
-    fontWeight: "800"
-  },
-  libraryCard: {
-    backgroundColor: "#FFFFFF",
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    height: "88%",
-    flex: 1,
-    marginTop: "auto"
-  },
-  libraryHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: 20,
-    paddingBottom: 10
-  },
-  libraryClose: {
-    color: "#154734",
-    fontSize: 20,
-    paddingHorizontal: 8
-  },
-  libraryList: {
-    flex: 1
-  },
-  libraryListContent: {
-    paddingHorizontal: 20,
-    paddingTop: 4,
-    paddingBottom: 16
-  },
-  libraryEmpty: {
-    alignItems: "center",
-    paddingVertical: 32
-  },
   libraryControls: {
-    paddingHorizontal: 20,
+    paddingHorizontal: space.xl,
     paddingBottom: 14,
     gap: 10
   },
   searchInput: {
-    borderWidth: 1,
-    borderColor: "#DCEBE5",
-    borderRadius: 11,
-    backgroundColor: "#FAFCFA",
-    color: "#154734",
-    fontSize: 15,
-    paddingHorizontal: 13,
     paddingVertical: 10
   },
   filterRow: {
@@ -858,71 +655,66 @@ const styles = StyleSheet.create({
     gap: 10,
     alignItems: "center"
   },
-  filterButton: {
-    backgroundColor: "#DCEBE5",
-    borderRadius: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 14
+  libraryList: {
+    flex: 1
   },
-  filterButtonActive: {
-    backgroundColor: "#154734"
+  libraryListContent: {
+    paddingHorizontal: space.xl,
+    paddingTop: 4,
+    paddingBottom: space.lg
   },
-  filterButtonText: {
-    color: "#154734",
-    fontSize: 13,
-    fontWeight: "700"
+  libraryEmpty: {
+    alignItems: "center",
+    paddingVertical: space.huge
   },
-  filterButtonTextActive: {
-    color: "#FFFFFF"
+  rowFavorite: {
+    backgroundColor: colors.surfaceSage
   },
-  exerciseRow: {
-    backgroundColor: "#F8FAF9",
-    borderRadius: 12,
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    marginBottom: 10
-  },
-  exerciseRowFavorite: {
-    backgroundColor: "#DCEBE5"
-  },
-  exerciseRowMain: {
+  rowMain: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between"
   },
-  exerciseRowText: {
+  rowText: {
     flex: 1
   },
   addToWorkoutButton: {
-    marginTop: 12,
+    marginTop: space.md,
     paddingVertical: 10,
-    borderRadius: 10,
-    backgroundColor: "#154734",
+    borderRadius: radius.sm,
+    backgroundColor: colors.forest,
     alignItems: "center"
   },
   addToWorkoutButtonAdded: {
-    backgroundColor: "#FFFFFF"
+    backgroundColor: colors.surface
   },
   addToWorkoutText: {
-    color: "#FFFFFF",
-    fontSize: 13,
-    fontWeight: "800"
+    ...typography.caption,
+    fontWeight: "800",
+    color: colors.onDark
   },
   addToWorkoutTextAdded: {
-    color: "#154734"
-  },
-  exerciseName: {
-    color: "#154734",
-    fontSize: 15,
-    fontWeight: "700"
-  },
-  exerciseCategory: {
-    color: "#789F90",
-    fontSize: 13,
-    marginTop: 2
+    color: colors.ink
   },
   heartText: {
     fontSize: 18,
-    marginLeft: 12
+    marginLeft: space.md
+  },
+  createButton: {
+    paddingVertical: 18,
+    marginTop: space.xxxl,
+    marginBottom: space.sm,
+    shadowColor: colors.forest,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 4
+  },
+  createButtonText: {
+    ...typography.bodyStrong,
+    fontSize: 17,
+    fontWeight: "800",
+    letterSpacing: 0.3,
+    color: colors.onDark
   }
 });

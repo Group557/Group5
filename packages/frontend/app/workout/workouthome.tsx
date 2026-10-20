@@ -10,6 +10,15 @@ import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 
 import { supabase } from "../../../../utils/supabase";
+import {
+  buttons,
+  cards,
+  colors,
+  layout,
+  radius,
+  space,
+  text
+} from "../../theme";
 
 type Exercise = {
   id: number;
@@ -54,8 +63,8 @@ export default function WorkoutHomePage() {
 
   return (
     <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.content}>
+      style={layout.screen}
+      contentContainerStyle={layout.scrollContent}>
       {/* Top bar */}
       <View style={styles.topBar}>
         <View style={styles.logoRow}>
@@ -72,9 +81,9 @@ export default function WorkoutHomePage() {
 
       {/* Heading */}
       <View style={styles.headingSection}>
-        <Text style={styles.eyebrow}>YOUR FITNESS</Text>
-        <Text style={styles.title}>My Workouts</Text>
-        <Text style={styles.subtitle}>
+        <Text style={text.eyebrow}>YOUR FITNESS</Text>
+        <Text style={text.screenTitle}>My Workouts</Text>
+        <Text style={text.subtitle}>
           Add exercises, then combine them into a workout.
         </Text>
       </View>
@@ -82,18 +91,18 @@ export default function WorkoutHomePage() {
       {/* Buttons */}
       <View style={styles.buttonRow}>
         <Pressable
-          style={styles.primaryButton}
+          style={buttons.primary}
           onPress={handleAddExercise}>
           <Text style={styles.buttonPlus}>+</Text>
-          <Text style={styles.primaryButtonText}>
+          <Text style={buttons.primaryText}>
             Add Exercise
           </Text>
         </Pressable>
 
         <Pressable
-          style={styles.secondaryButton}
+          style={buttons.secondary}
           onPress={handleCreateWorkout}>
-          <Text style={styles.secondaryButtonText}>
+          <Text style={buttons.secondaryText}>
             Create Workout
           </Text>
         </Pressable>
@@ -101,18 +110,18 @@ export default function WorkoutHomePage() {
 
       {/* Exercises section */}
       <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>My Exercises</Text>
-        <Text style={styles.sectionCount}>
+        <Text style={text.sectionTitle}>My Exercises</Text>
+        <Text style={text.sectionCount}>
           {exercises.length} saved
         </Text>
       </View>
 
       {loading ? (
-        <View style={styles.emptyCard}>
+        <View style={cards.empty}>
           <ActivityIndicator />
         </View>
       ) : exercises.length === 0 ? (
-        <View style={styles.emptyCard}>
+        <View style={cards.empty}>
           <View style={styles.emptyIconBox}>
             <Text style={styles.emptyIcon}>+</Text>
           </View>
@@ -126,17 +135,17 @@ export default function WorkoutHomePage() {
       ) : (
         <View style={styles.exerciseList}>
           {exercises.map((exercise) => (
-            <View key={exercise.id} style={styles.exerciseCard}>
+            <View key={exercise.id} style={cards.item}>
               <View style={styles.exerciseIconBox}>
                 <Text style={styles.exerciseIcon}>✣</Text>
               </View>
 
               <View style={styles.exerciseText}>
-                <Text style={styles.exerciseName}>
+                <Text style={text.exerciseName}>
                   {exercise.exercise_name}
                 </Text>
                 {exercise.exercise_category ? (
-                  <Text style={styles.exerciseCategory}>
+                  <Text style={text.exerciseCategory}>
                     {exercise.exercise_category}
                   </Text>
                 ) : null}
@@ -148,13 +157,13 @@ export default function WorkoutHomePage() {
 
       {/* Workouts section */}
       <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>
+        <Text style={text.sectionTitle}>
           Created Workouts
         </Text>
-        <Text style={styles.sectionCount}>0 workouts</Text>
+        <Text style={text.sectionCount}>0 workouts</Text>
       </View>
 
-      <View style={styles.emptyCard}>
+      <View style={cards.empty}>
         <View style={styles.emptyIconBox}>
           <Text style={styles.emptyIcon}>✓</Text>
         </View>
@@ -172,33 +181,23 @@ export default function WorkoutHomePage() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F8F6F0"
-  },
-  content: {
-    padding: 20,
-    paddingTop: 28,
-    paddingBottom: 32
-  },
-
   topBar: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 30
+    marginBottom: space.xxxl
   },
   logoRow: {
     flexDirection: "row",
     alignItems: "center"
   },
   logoIcon: {
-    color: "#154734",
+    color: colors.forest,
     fontSize: 25,
     marginRight: 7
   },
   logo: {
-    color: "#154734",
+    color: colors.forest,
     fontSize: 22,
     fontWeight: "800"
   },
@@ -206,7 +205,7 @@ const styles = StyleSheet.create({
     width: 7,
     height: 7,
     borderRadius: 4,
-    backgroundColor: "#BD8013",
+    backgroundColor: colors.gold,
     marginLeft: 7,
     marginTop: 5
   },
@@ -215,8 +214,8 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: 24,
     borderWidth: 2,
-    borderColor: "#BD8013",
-    backgroundColor: "#D7DDDA",
+    borderColor: colors.gold,
+    backgroundColor: colors.surfaceAvatar,
     alignItems: "center",
     justifyContent: "center"
   },
@@ -224,7 +223,7 @@ const styles = StyleSheet.create({
     width: 14,
     height: 14,
     borderRadius: 7,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: colors.surface,
     marginBottom: 2
   },
   profileBody: {
@@ -232,110 +231,52 @@ const styles = StyleSheet.create({
     height: 15,
     borderTopLeftRadius: 14,
     borderTopRightRadius: 14,
-    backgroundColor: "#FFFFFF"
+    backgroundColor: colors.surface
   },
 
   headingSection: {
-    marginBottom: 22
-  },
-  eyebrow: {
-    color: "#789F90",
-    fontSize: 12,
-    fontWeight: "800",
-    letterSpacing: 1
-  },
-  title: {
-    color: "#154734",
-    fontSize: 30,
-    fontWeight: "800",
-    marginTop: 4
-  },
-  subtitle: {
-    color: "#6B7280",
-    fontSize: 14,
-    marginTop: 7,
-    lineHeight: 20
+    marginBottom: space.xxl
   },
 
   buttonRow: {
-    gap: 12,
-    marginBottom: 30
-  },
-  primaryButton: {
-    backgroundColor: "#154734",
-    borderRadius: 14,
-    paddingVertical: 15,
-    alignItems: "center",
-    justifyContent: "center",
-    flexDirection: "row"
+    gap: space.md,
+    marginBottom: space.xxxl
   },
   buttonPlus: {
-    color: "#FFFFFF",
+    color: colors.onDark,
     fontSize: 24,
-    marginRight: 8,
+    marginRight: space.sm,
     marginTop: -2
-  },
-  primaryButtonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "800"
-  },
-  secondaryButton: {
-    backgroundColor: "#DCEBE5",
-    borderRadius: 14,
-    paddingVertical: 15,
-    alignItems: "center"
-  },
-  secondaryButtonText: {
-    color: "#154734",
-    fontSize: 16,
-    fontWeight: "800"
   },
 
   sectionHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 11
+    marginBottom: space.md
   },
-  sectionTitle: {
-    color: "#154734",
-    fontSize: 19,
-    fontWeight: "800"
-  },
-  sectionCount: {
-    color: "#789F90",
-    fontSize: 13,
-    fontWeight: "700"
-  },
-  emptyCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 18,
-    padding: 20,
-    alignItems: "center",
-    marginBottom: 27
-  },
+
   emptyIconBox: {
     width: 45,
     height: 45,
-    borderRadius: 12,
-    backgroundColor: "#E6EFEA",
+    borderRadius: radius.md,
+    backgroundColor: colors.surfaceSage,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 10
   },
   emptyIcon: {
-    color: "#154734",
+    color: colors.forest,
     fontSize: 23,
     fontWeight: "700"
   },
   emptyTitle: {
-    color: "#154734",
+    color: colors.forest,
     fontSize: 16,
     fontWeight: "800"
   },
   emptyText: {
-    color: "#6B7280",
+    color: colors.inkMuted,
     fontSize: 13,
     textAlign: "center",
     lineHeight: 19,
@@ -343,41 +284,23 @@ const styles = StyleSheet.create({
   },
   exerciseList: {
     gap: 10,
-    marginBottom: 27
-  },
-  exerciseCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    padding: 16,
-    flexDirection: "row",
-    alignItems: "center"
+    marginBottom: space.xxl
   },
   exerciseIconBox: {
     width: 40,
     height: 40,
-    borderRadius: 11,
-    backgroundColor: "#E6EFEA",
+    borderRadius: radius.md,
+    backgroundColor: colors.surfaceSage,
     justifyContent: "center",
     alignItems: "center",
     marginRight: 13
   },
   exerciseIcon: {
-    color: "#154734",
+    color: colors.forest,
     fontSize: 19,
     fontWeight: "700"
   },
   exerciseText: {
     flex: 1
-  },
-  exerciseName: {
-    color: "#154734",
-    fontSize: 16,
-    fontWeight: "800"
-  },
-  exerciseCategory: {
-    color: "#789F90",
-    fontSize: 13,
-    fontWeight: "700",
-    marginTop: 2
   }
 });

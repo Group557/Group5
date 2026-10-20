@@ -11,6 +11,15 @@ import {
   View
 } from "react-native";
 import { supabase } from "../../../../utils/supabase";
+import {
+  buttons,
+  cards,
+  colors,
+  form,
+  layout,
+  space,
+  text
+} from "../../theme";
 
 export default function AddExerciseScreen() {
   const [exerciseName, setExerciseName] = useState("");
@@ -49,41 +58,41 @@ export default function AddExerciseScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.page}
+      style={layout.screen}
       behavior={Platform.OS === "ios" ? "padding" : undefined}>
-      <ScrollView contentContainerStyle={styles.content}>
-        <Pressable style={styles.backButton} onPress={goBack}>
-          <Text style={styles.backText}>‹ Back</Text>
+      <ScrollView contentContainerStyle={layout.scrollContent}>
+        <Pressable style={buttons.backLink} onPress={goBack}>
+          <Text style={buttons.backText}>‹ Back</Text>
         </Pressable>
 
-        <Text style={styles.title}>Add Exercise</Text>
+        <Text style={text.screenTitle}>Add Exercise</Text>
 
-        <View style={styles.formCard}>
-          <Text style={styles.label}>Exercise name</Text>
+        <View style={cards.card}>
+          <Text style={text.fieldLabel}>Exercise name</Text>
           <TextInput
-            style={styles.input}
+            style={form.input}
             placeholder="Example: Preacher Curls"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={colors.inkPlaceholder}
             value={exerciseName}
             onChangeText={setExerciseName}
           />
 
-          <Text style={styles.label}>Category</Text>
+          <Text style={text.fieldLabel}>Category</Text>
           <TextInput
-            style={styles.input}
+            style={form.input}
             placeholder="Example: Cardio, Lower Body, Chest"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={colors.inkPlaceholder}
             value={category}
             onChangeText={setCategory}
           />
 
           <View style={styles.smallInputsRow}>
             <View style={styles.smallInputGroup}>
-              <Text style={styles.label}>Sets</Text>
+              <Text style={text.fieldLabel}>Sets</Text>
               <TextInput
-                style={styles.input}
+                style={form.input}
                 placeholder="3"
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor={colors.inkPlaceholder}
                 keyboardType="numeric"
                 value={sets}
                 onChangeText={setSets}
@@ -91,11 +100,11 @@ export default function AddExerciseScreen() {
             </View>
 
             <View style={styles.smallInputGroup}>
-              <Text style={styles.label}>Reps</Text>
+              <Text style={text.fieldLabel}>Reps</Text>
               <TextInput
-                style={styles.input}
+                style={form.input}
                 placeholder="8"
-                placeholderTextColor="#9CA3AF"
+                placeholderTextColor={colors.inkPlaceholder}
                 keyboardType="numeric"
                 value={reps}
                 onChangeText={setReps}
@@ -103,20 +112,20 @@ export default function AddExerciseScreen() {
             </View>
           </View>
 
-          <Text style={styles.label}>Weight (optional)</Text>
+          <Text style={text.fieldLabel}>Weight (optional)</Text>
           <TextInput
-            style={styles.input}
+            style={form.input}
             placeholder="Example: 25 lbs"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={colors.inkPlaceholder}
             value={weight}
             onChangeText={setWeight}
           />
 
-          <Text style={styles.label}>Notes (optional)</Text>
+          <Text style={text.fieldLabel}>Notes (optional)</Text>
           <TextInput
-            style={[styles.input, styles.notesInput]}
+            style={[form.input, styles.notesInput]}
             placeholder="Add any instructions or reminders..."
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor={colors.inkPlaceholder}
             multiline
             textAlignVertical="top"
             value={notes}
@@ -125,9 +134,9 @@ export default function AddExerciseScreen() {
         </View>
 
         <Pressable
-          style={styles.saveButton}
+          style={[buttons.primary, styles.saveButton]}
           onPress={handleSaveExercise}>
-          <Text style={styles.saveButtonText}>
+          <Text style={buttons.primaryText}>
             Save Exercise
           </Text>
         </Pressable>
@@ -137,67 +146,9 @@ export default function AddExerciseScreen() {
 }
 
 const styles = StyleSheet.create({
-  page: {
-    flex: 1,
-    backgroundColor: "#F8F6F0"
-  },
-  content: {
-    padding: 20,
-    paddingTop: 28,
-    paddingBottom: 36
-  },
-  backButton: {
-    marginBottom: 28
-  },
-  backText: {
-    color: "#154734",
-    fontSize: 16,
-    fontWeight: "700"
-  },
-  eyebrow: {
-    color: "#789F90",
-    fontSize: 12,
-    fontWeight: "800",
-    letterSpacing: 1
-  },
-  title: {
-    color: "#154734",
-    fontSize: 30,
-    fontWeight: "800",
-    marginTop: 4
-  },
-  subtitle: {
-    color: "#6B7280",
-    fontSize: 14,
-    lineHeight: 20,
-    marginTop: 7,
-    marginBottom: 22
-  },
-  formCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 18,
-    padding: 18
-  },
-  label: {
-    color: "#154734",
-    fontSize: 14,
-    fontWeight: "700",
-    marginBottom: 7,
-    marginTop: 12
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#DCEBE5",
-    borderRadius: 11,
-    backgroundColor: "#FAFCFA",
-    color: "#154734",
-    fontSize: 15,
-    paddingHorizontal: 13,
-    paddingVertical: 12
-  },
   smallInputsRow: {
     flexDirection: "row",
-    gap: 12
+    gap: space.md
   },
   smallInputGroup: {
     flex: 1
@@ -206,15 +157,7 @@ const styles = StyleSheet.create({
     height: 100
   },
   saveButton: {
-    backgroundColor: "#154734",
-    borderRadius: 14,
     paddingVertical: 16,
-    alignItems: "center",
-    marginTop: 22
-  },
-  saveButtonText: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "800"
+    marginTop: space.xxl
   }
 });

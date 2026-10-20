@@ -16,6 +16,15 @@ import {
   useSafeAreaInsets
 } from "react-native-safe-area-context";
 
+import {
+  buttons,
+  colors,
+  layout,
+  radius,
+  space,
+  typography
+} from "../../theme";
+
 /* ------------------------------------------------------------------ *
  * Crowd data
  *
@@ -244,32 +253,10 @@ function busiestReading(readings: CrowdReading[]) {
 /* ------------------------------------------------------------------ *
  * Design tokens
  *
- * Single source of truth for the PolyFit brand. The palette is the
- * one already established on this screen: forest green, warm cream,
- * burnished gold and mint. `#789F90` was replaced by `#4A7361` and
- * gold is never used for body text, because both failed WCAG AA
- * against the cream canvas.
+ * Colors, spacing, radii and the type scale all live in
+ * `../../theme` now, so every screen in the app draws from the same
+ * colors.
  * ------------------------------------------------------------------ */
-
-const palette = {
-  forest: "#154734",
-  sage: "#4A7361",
-  mint: "#87CDC2",
-  gold: "#BD8013",
-  goldText: "#8A5E08",
-  goldLight: "#E8B54A",
-  goldSoft: "#F6E8C8",
-  canvas: "#F8F6F0",
-  surface: "#FFFFFF",
-  surfaceMuted: "#EEF3EF",
-  surfaceSage: "#E6EFEA",
-  ink: "#154734",
-  inkMuted: "#5A6570",
-  onDark: "#FFFFFF",
-  onDarkMuted: "#C9DDD5",
-  onDarkLine: "rgba(255, 255, 255, 0.18)",
-  chartBar: "#5E8F7B"
-} as const;
 
 /**
  * Crowd status needs a tone for light surfaces and one for the dark
@@ -284,44 +271,6 @@ const STATUS_TONE: Record<
   Moderate: { onLight: "#8A5E08", onDark: "#E8B54A" },
   High: { onLight: "#A63A24", onDark: "#F5AEA4" }
 };
-
-const space = {
-  xs: 4,
-  sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 20,
-  xxl: 24
-} as const;
-
-const radius = {
-  sm: 10,
-  md: 14,
-  lg: 20,
-  pill: 999
-} as const;
-
-const text = {
-  display: { fontSize: 26, lineHeight: 32, fontWeight: "700" },
-  metric: { fontSize: 40, lineHeight: 46, fontWeight: "700" },
-  title: { fontSize: 19, lineHeight: 25, fontWeight: "700" },
-  heading: { fontSize: 17, lineHeight: 23, fontWeight: "700" },
-  body: { fontSize: 15, lineHeight: 21, fontWeight: "400" },
-  bodyStrong: {
-    fontSize: 15,
-    lineHeight: 21,
-    fontWeight: "600"
-  },
-  caption: { fontSize: 13, lineHeight: 18, fontWeight: "400" },
-  label: { fontSize: 12, lineHeight: 16, fontWeight: "600" },
-  eyebrow: {
-    fontSize: 11,
-    lineHeight: 14,
-    fontWeight: "700",
-    letterSpacing: 0.8,
-    textTransform: "uppercase"
-  }
-} as const;
 
 /* ------------------------------------------------------------------ *
  * Helpers
@@ -392,7 +341,7 @@ type IconProps = {
 function Icon({
   name,
   size = 20,
-  color = palette.ink,
+  color = colors.ink,
   weight = "semibold",
   style
 }: IconProps) {
@@ -461,12 +410,12 @@ function barColor(
   currentHour: number
 ) {
   if (reading.hour === currentHour) {
-    return palette.goldText;
+    return colors.goldText;
   }
   if (reading.hour === peakHour) {
-    return palette.forest;
+    return colors.forest;
   }
-  return palette.chartBar;
+  return colors.chartBar;
 }
 
 /**
@@ -588,7 +537,7 @@ function RecCenterContent() {
 
   return (
     <SafeAreaView
-      style={styles.screen}
+      style={layout.screen}
       edges={["top", "left", "right"]}>
       <ScrollView
         style={styles.scroll}
@@ -615,7 +564,7 @@ function RecCenterContent() {
                 web: "person"
               }}
               size={32}
-              color={palette.onDark}
+              color={colors.onDark}
               weight="regular"
             />
           </View>
@@ -626,7 +575,7 @@ function RecCenterContent() {
           onPress={handleRecIdPress}
           style={({ pressed }) => [
             styles.recIdRow,
-            pressed && styles.pressed
+            pressed && buttons.pressed
           ]}
           accessibilityRole="button"
           accessibilityLabel="My Rec ID"
@@ -639,7 +588,7 @@ function RecCenterContent() {
                 web: "qr_code_scanner"
               }}
               size={22}
-              color={palette.goldText}
+              color={colors.goldText}
             />
           </View>
           <View style={styles.recIdText}>
@@ -655,7 +604,7 @@ function RecCenterContent() {
               web: "chevron_right"
             }}
             size={18}
-            color={palette.inkMuted}
+            color={colors.inkMuted}
           />
         </Pressable>
 
@@ -743,8 +692,8 @@ function RecCenterContent() {
               android: "schedule",
               web: "schedule"
             }}
-            iconBackground={palette.surfaceSage}
-            iconColor={palette.sage}
+            iconBackground={colors.surfaceSage}
+            iconColor={colors.sage}
             label="Closes at"
             value="Midnight"
           />
@@ -754,8 +703,8 @@ function RecCenterContent() {
               android: "hourglass",
               web: "hourglass"
             }}
-            iconBackground={palette.goldSoft}
-            iconColor={palette.goldText}
+            iconBackground={colors.goldSoft}
+            iconColor={colors.goldText}
             label="Current wait"
             value={formatWait(current.estimated_wait_minutes)}
           />
@@ -770,10 +719,6 @@ function RecCenterContent() {
  * ------------------------------------------------------------------ */
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.canvas
-  },
   scroll: {
     flex: 1
   },
@@ -794,21 +739,22 @@ const styles = StyleSheet.create({
     minWidth: 0
   },
   headerEyebrow: {
-    ...text.eyebrow,
-    color: palette.sage
+    ...typography.eyebrow,
+    color: colors.sage,
+    textTransform: "uppercase"
   },
   greeting: {
-    ...text.display,
-    color: palette.ink,
+    ...typography.display,
+    color: colors.ink,
     marginTop: space.xs
   },
   avatar: {
     width: 44,
     height: 44,
-    borderRadius: 20,
+    borderRadius: radius.xxxl,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: palette.forest,
+    backgroundColor: colors.forest,
     marginLeft: space.md
   },
 
@@ -816,22 +762,19 @@ const styles = StyleSheet.create({
   recIdRow: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: palette.surface,
-    borderRadius: radius.lg,
+    backgroundColor: colors.surface,
+    borderRadius: radius.xxxl,
     padding: space.lg,
     minHeight: 64,
     marginBottom: space.lg
   },
-  pressed: {
-    opacity: 0.75
-  },
   recIdIcon: {
     width: 44,
     height: 44,
-    borderRadius: radius.md,
+    borderRadius: radius.lg,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: palette.goldSoft
+    backgroundColor: colors.goldSoft
   },
   recIdText: {
     flex: 1,
@@ -839,20 +782,20 @@ const styles = StyleSheet.create({
     marginHorizontal: space.md
   },
   recIdTitle: {
-    ...text.bodyStrong,
+    ...typography.bodyStrong,
     fontSize: 16,
-    color: palette.ink
+    color: colors.ink
   },
   recIdSubtitle: {
-    ...text.caption,
-    color: palette.inkMuted,
+    ...typography.caption,
+    color: colors.inkMuted,
     marginTop: 2
   },
 
   // Live crowd card
   hero: {
-    backgroundColor: palette.forest,
-    borderRadius: radius.lg,
+    backgroundColor: colors.forest,
+    borderRadius: radius.xxxl,
     padding: space.xl,
     marginBottom: space.xxl
   },
@@ -863,8 +806,9 @@ const styles = StyleSheet.create({
     marginBottom: space.lg
   },
   heroEyebrow: {
-    ...text.eyebrow,
-    color: palette.mint
+    ...typography.eyebrow,
+    color: colors.mint,
+    textTransform: "uppercase"
   },
   liveBadge: {
     flexDirection: "row",
@@ -878,18 +822,18 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: palette.gold,
+    backgroundColor: colors.gold,
     marginRight: space.sm
   },
   liveText: {
-    ...text.label,
+    ...typography.label,
     fontSize: 11,
     letterSpacing: 0.6,
-    color: palette.onDark
+    color: colors.onDark
   },
   heroLabel: {
-    ...text.caption,
-    color: palette.onDarkMuted
+    ...typography.caption,
+    color: colors.onDarkMuted
   },
   heroValueRow: {
     flexDirection: "row",
@@ -897,8 +841,8 @@ const styles = StyleSheet.create({
     marginTop: space.xs
   },
   heroValue: {
-    ...text.metric,
-    color: palette.onDark
+    ...typography.metric,
+    color: colors.onDark
   },
   statusChip: {
     flexDirection: "row",
@@ -912,7 +856,7 @@ const styles = StyleSheet.create({
     marginRight: space.sm
   },
   statusLabel: {
-    ...text.caption,
+    ...typography.caption,
     fontWeight: "600"
   },
   capacityTrack: {
@@ -928,7 +872,7 @@ const styles = StyleSheet.create({
   },
   heroDivider: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: palette.onDarkLine,
+    backgroundColor: colors.onDarkLine,
     marginVertical: space.lg
   },
   heroFooter: {
@@ -937,14 +881,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-between"
   },
   heroFooterLabel: {
-    ...text.body,
-    color: palette.onDarkMuted,
+    ...typography.body,
+    color: colors.onDarkMuted,
     marginRight: space.md,
     flexShrink: 1
   },
   heroFooterValue: {
-    ...text.bodyStrong,
-    color: palette.onDark
+    ...typography.bodyStrong,
+    color: colors.onDark
   },
 
   // Today's activity
@@ -952,15 +896,15 @@ const styles = StyleSheet.create({
     marginBottom: space.xxl
   },
   sectionTitle: {
-    ...text.title,
-    color: palette.ink,
+    ...typography.title,
+    color: colors.ink,
     marginBottom: space.md
   },
 
   // Chart
   chart: {
-    backgroundColor: palette.surfaceMuted,
-    borderRadius: radius.md,
+    backgroundColor: colors.surfaceMuted,
+    borderRadius: radius.lg,
     paddingHorizontal: space.md,
     paddingTop: space.md,
     paddingBottom: space.md
@@ -972,12 +916,12 @@ const styles = StyleSheet.create({
     marginBottom: space.md
   },
   chartMetaLabel: {
-    ...text.caption,
-    color: palette.inkMuted
+    ...typography.caption,
+    color: colors.inkMuted
   },
   chartMetaValue: {
-    ...text.label,
-    color: palette.ink
+    ...typography.label,
+    color: colors.ink
   },
   chartPlot: {
     flexDirection: "row",
@@ -1005,10 +949,10 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 11,
     lineHeight: 14,
-    color: palette.inkMuted
+    color: colors.inkMuted
   },
   chartAxisLabelCurrent: {
-    color: palette.ink,
+    color: colors.ink,
     fontWeight: "700"
   },
 
@@ -1019,8 +963,8 @@ const styles = StyleSheet.create({
   },
   tile: {
     flex: 1,
-    backgroundColor: palette.surface,
-    borderRadius: radius.lg,
+    backgroundColor: colors.surface,
+    borderRadius: radius.xxxl,
     padding: space.lg
   },
   tileIcon: {
@@ -1032,12 +976,12 @@ const styles = StyleSheet.create({
     marginBottom: space.md
   },
   tileLabel: {
-    ...text.caption,
-    color: palette.inkMuted
+    ...typography.caption,
+    color: colors.inkMuted
   },
   tileValue: {
-    ...text.bodyStrong,
-    color: palette.ink,
+    ...typography.bodyStrong,
+    color: colors.ink,
     marginTop: 2
   }
 });
