@@ -1,17 +1,22 @@
 import { Stack } from "expo-router";
 import {
   ActivityIndicator,
-  Button,
+  StyleSheet,
   Text,
   View
 } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+
 import AuthProvider, { useAuth } from "../context/AuthProvider";
+import { Button, colors, space, typography } from "../theme";
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <AppNavigation />
-    </AuthProvider>
+    <SafeAreaProvider>
+      <AuthProvider>
+        <AppNavigation />
+      </AuthProvider>
+    </SafeAreaProvider>
   );
 }
 
@@ -22,9 +27,11 @@ function AppNavigation() {
   // Wait until the provider finishes checking.
   if (loading) {
     return (
-      <View>
-        <ActivityIndicator />
-        <Text>Loading your account...</Text>
+      <View style={styles.centered}>
+        <ActivityIndicator color={colors.forest} />
+        <Text style={styles.centeredText}>
+          Loading your account...
+        </Text>
       </View>
     );
   }
@@ -32,15 +39,20 @@ function AppNavigation() {
   // Don't choose a protected route without a known profile status.
   if (error || (session !== null && onboarded === null)) {
     return (
-      <View>
-        <Text>
+      <View style={styles.centered}>
+        <Text style={styles.errorTitle}>
+          Something went wrong
+        </Text>
+        <Text style={styles.centeredText}>
           {error ?? "Unable to determine onboarding status."}
         </Text>
+
         <Button
-          title="Try again"
+          label="Try again"
           onPress={() => {
             void refreshProfile();
           }}
+          style={styles.retry}
         />
       </View>
     );
@@ -59,8 +71,32 @@ function AppNavigation() {
 
       <Stack.Protected
         guard={session !== null && onboarded === true}>
-        <Stack.Screen name="(dashboard)/dashboard" />
+        <Stack.Screen name="(dashboard)" />
       </Stack.Protected>
     </Stack>
   );
 }
+
+const styles = StyleSheet.create({
+  centered: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.canvas,
+    padding: space.xl
+  },
+  centeredText: {
+    ...typography.body,
+    color: colors.inkMuted,
+    textAlign: "center",
+    marginTop: space.md
+  },
+  errorTitle: {
+    ...typography.title,
+    color: colors.ink
+  },
+  retry: {
+    marginTop: space.xl,
+    minWidth: 160
+  }
+});

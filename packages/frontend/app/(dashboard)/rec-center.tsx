@@ -1,25 +1,19 @@
-import { SymbolView } from "expo-symbols";
-import regular from "expo-symbols/androidWeights/regular";
-import semiBold from "expo-symbols/androidWeights/semiBold";
+import { useMemo, useState } from "react";
 import {
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
-  View,
-  type StyleProp,
-  type ViewStyle
+  View
 } from "react-native";
-import {
-  SafeAreaProvider,
-  SafeAreaView,
-  useSafeAreaInsets
-} from "react-native-safe-area-context";
 
 import {
-  buttons,
+  Icon,
+  type IconName,
+  Screen,
   colors,
-  layout,
+  formatDate,
+  formatGreeting,
+  formatWait,
   radius,
   space,
   typography
@@ -166,35 +160,35 @@ const CROWD_BY_HOUR: CrowdReading[] = [
   {
     hour: 17,
     time_label: "5 PM",
-    occupancy_percentage: 87,
-    status: "High",
-    estimated_wait_minutes: 25
+    occupancy_percentage: 74,
+    status: "Moderate",
+    estimated_wait_minutes: 15
   },
   {
     hour: 18,
     time_label: "6 PM",
-    occupancy_percentage: 90,
+    occupancy_percentage: 92,
     status: "High",
-    estimated_wait_minutes: 25
+    estimated_wait_minutes: 30
   },
   {
     hour: 19,
     time_label: "7 PM",
-    occupancy_percentage: 82,
+    occupancy_percentage: 88,
     status: "High",
     estimated_wait_minutes: 25
   },
   {
     hour: 20,
     time_label: "8 PM",
-    occupancy_percentage: 64,
+    occupancy_percentage: 70,
     status: "Moderate",
     estimated_wait_minutes: 10
   },
   {
     hour: 21,
     time_label: "9 PM",
-    occupancy_percentage: 45,
+    occupancy_percentage: 48,
     status: "Moderate",
     estimated_wait_minutes: 0
   },
@@ -219,7 +213,6 @@ const OPENING_HOUR = 6;
 const CLOSING_HOUR = 24;
 
 // FIX!!! Sundays are closed and sundays close at 10
-
 
 const crowdWindow = CROWD_BY_HOUR.filter(
   (reading) =>
@@ -250,14 +243,6 @@ function busiestReading(readings: CrowdReading[]) {
   );
 }
 
-/* ------------------------------------------------------------------ *
- * Design tokens
- *
- * Colors, spacing, radii and the type scale all live in
- * `../../theme` now, so every screen in the app draws from the same
- * colors.
- * ------------------------------------------------------------------ */
-
 /**
  * Crowd status needs a tone for light surfaces and one for the dark
  * hero card. Every pair below clears WCAG AA for text and 3:1 for
@@ -273,96 +258,11 @@ const STATUS_TONE: Record<
 };
 
 /* ------------------------------------------------------------------ *
- * Helpers
- * ------------------------------------------------------------------ */
-
-const WEEKDAYS = [
-  "SUN",
-  "MON",
-  "TUE",
-  "WED",
-  "THU",
-  "FRI",
-  "SAT"
-];
-const MONTHS = [
-  "JAN",
-  "FEB",
-  "MAR",
-  "APR",
-  "MAY",
-  "JUN",
-  "JUL",
-  "AUG",
-  "SEP",
-  "OCT",
-  "NOV",
-  "DEC"
-];
-
-function formatDate(date: Date) {
-  return `${WEEKDAYS[date.getDay()]} · ${MONTHS[date.getMonth()]} ${date.getDate()}`;
-}
-
-function formatGreeting(date: Date) {
-  const hour = date.getHours();
-
-  if (hour < 12) {
-    return "Good morning";
-  }
-  if (hour < 18) {
-    return "Good afternoon";
-  }
-  return "Good evening";
-}
-
-function formatWait(minutes: number) {
-  return minutes > 0 ? `${minutes} min` : "No wait";
-}
-
-/* ------------------------------------------------------------------ *
  * UI primitives
  * ------------------------------------------------------------------ */
 
-type SymbolName = Parameters<typeof SymbolView>[0]["name"];
-
-type IconProps = {
-  name: SymbolName;
-  size?: number;
-  color?: string;
-  weight?: "regular" | "semibold";
-  style?: StyleProp<ViewStyle>;
-};
-
-/**
- * Native SF Symbols on iOS, Material Symbols on Android and web.
- * Icons are decorative: the surrounding control carries the label.
- */
-function Icon({
-  name,
-  size = 20,
-  color = colors.ink,
-  weight = "semibold",
-  style
-}: IconProps) {
-  return (
-    <SymbolView
-      name={name}
-      size={size}
-      tintColor={color}
-      weight={{
-        ios: weight,
-        android: weight === "semibold" ? semiBold : regular
-      }}
-      style={style}
-      accessible={false}
-      importantForAccessibility="no"
-    />
-  );
-}
-
 type StatTileProps = {
-  icon: SymbolName;
+  icon: IconName;
   iconBackground: string;
   iconColor: string;
   label: string;
@@ -516,201 +416,191 @@ function CrowdChart({ data, currentHour }: CrowdChartProps) {
  * ------------------------------------------------------------------ */
 
 export default function RecCenterScreen() {
-  return (
-    <SafeAreaProvider>
-      <RecCenterContent />
-    </SafeAreaProvider>
-  );
-}
-
-function RecCenterContent() {
-  const insets = useSafeAreaInsets();
-  const now = new Date();
-
-  const handleRecIdPress = () => {
-    // TODO: implement rec ID scan-in
-  };
+  const now = useMemo(() => new Date(), []);
+  const [recIdNote, setRecIdNote] = useState(false);
 
   const current = readingForHour(now.getHours());
   const best = quietestReading(crowdWindow);
   const statusTone = STATUS_TONE[current.status];
 
   return (
-    <SafeAreaView
-      style={layout.screen}
-      edges={["top", "left", "right"]}>
-      <ScrollView
-        style={styles.scroll}
-        contentContainerStyle={[
-          styles.content,
-          { paddingBottom: insets.bottom + space.xxl }
-        ]}
-        showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.headerText}>
-            <Text style={styles.headerEyebrow}>
-              {formatDate(now)}
-            </Text>
-            <Text style={styles.greeting}>
-              {formatGreeting(now)}
-            </Text>
-          </View>
-          <View style={styles.avatar}>
-            <Icon
-              name={{
-                ios: "person",
-                android: "person",
-                web: "person"
-              }}
-              size={32}
-              color={colors.onDark}
-              weight="regular"
-            />
-          </View>
+    <Screen scroll edges={["top", "left", "right"]}>
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.headerText}>
+          <Text style={styles.headerEyebrow}>
+            {formatDate(now)}
+          </Text>
+          <Text style={styles.greeting}>
+            {formatGreeting(now)}
+          </Text>
         </View>
-
-        {/* My Rec ID */}
-        <Pressable
-          onPress={handleRecIdPress}
-          style={({ pressed }) => [
-            styles.recIdRow,
-            pressed && buttons.pressed
-          ]}
-          accessibilityRole="button"
-          accessibilityLabel="My Rec ID"
-          accessibilityHint="Opens the scanner to check in at the recreation center">
-          <View style={styles.recIdIcon}>
-            <Icon
-              name={{
-                ios: "qrcode.viewfinder",
-                android: "qr_code_scanner",
-                web: "qr_code_scanner"
-              }}
-              size={22}
-              color={colors.goldText}
-            />
-          </View>
-          <View style={styles.recIdText}>
-            <Text style={styles.recIdTitle}>My Rec ID</Text>
-            <Text style={styles.recIdSubtitle}>
-              Tap to scan in
-            </Text>
-          </View>
+        <View style={styles.avatar}>
           <Icon
             name={{
-              ios: "chevron.right",
-              android: "chevron_right",
-              web: "chevron_right"
+              ios: "person.fill",
+              android: "person",
+              web: "person"
             }}
-            size={18}
-            color={colors.inkMuted}
+            size={20}
+            color={colors.onDark}
+            weight="regular"
           />
-        </Pressable>
+        </View>
+      </View>
 
-        {/* Live crowd card */}
-        <View style={styles.hero}>
-          <View style={styles.heroHeader}>
-            <Text style={styles.heroEyebrow}>
-              Recreation Center
-            </Text>
-            <View style={styles.liveBadge}>
-              <View style={styles.liveDot} />
-              <Text
-                style={styles.liveText}
-                accessibilityLabel="Live">
-                LIVE
-              </Text>
-            </View>
-          </View>
+      {/* My Rec ID */}
+      <Pressable
+        onPress={() => {
+          setRecIdNote(true);
+        }}
+        style={({ pressed }) => [
+          styles.recIdRow,
+          pressed && styles.pressed
+        ]}
+        accessibilityRole="button"
+        accessibilityLabel="My Rec ID"
+        accessibilityHint="Opens the scanner to check in at the recreation center">
+        <View style={styles.recIdIcon}>
+          <Icon
+            name={{
+              ios: "qrcode.viewfinder",
+              android: "qr_code_scanner",
+              web: "qr_code_scanner"
+            }}
+            size={20}
+            color={colors.goldText}
+          />
+        </View>
+        <View style={styles.recIdText}>
+          <Text style={styles.recIdTitle}>My Rec ID</Text>
+          <Text style={styles.recIdSubtitle}>
+            Tap to scan in
+          </Text>
+        </View>
+        <Icon
+          name={{
+            ios: "chevron.right",
+            android: "chevron_right",
+            web: "chevron_right"
+          }}
+          size={16}
+          color={colors.inkMuted}
+          weight="regular"
+        />
+      </Pressable>
 
-          <Text style={styles.heroLabel}>Crowd level</Text>
+      {recIdNote ? (
+        <Text
+          style={styles.recIdNote}
+          accessibilityLiveRegion="polite">
+          Rec ID scanning is not set up yet. Ask staff to check
+          you in for now.
+        </Text>
+      ) : null}
 
-          <View style={styles.heroValueRow}>
+      {/* Live crowd card */}
+      <View style={styles.hero}>
+        <View style={styles.heroHeader}>
+          <Text style={styles.heroEyebrow}>
+            Recreation Center
+          </Text>
+          <View style={styles.liveBadge}>
+            <View style={styles.liveDot} />
             <Text
-              style={styles.heroValue}
-              accessibilityLabel={`${current.occupancy_percentage} percent full, ${current.status}`}>
-              {`${current.occupancy_percentage}%`}
+              style={styles.liveText}
+              accessibilityLabel="Live">
+              LIVE
             </Text>
-            <View style={styles.statusChip}>
-              <View
-                style={[
-                  styles.statusDot,
-                  { backgroundColor: statusTone.onDark }
-                ]}
-              />
-              <Text
-                style={[
-                  styles.statusLabel,
-                  { color: statusTone.onDark }
-                ]}>
-                {current.status}
-              </Text>
-            </View>
           </View>
+        </View>
 
-          <View style={styles.capacityTrack}>
+        <Text style={styles.heroLabel}>Crowd level</Text>
+
+        <View style={styles.heroValueRow}>
+          <Text
+            style={styles.heroValue}
+            accessibilityLabel={`${current.occupancy_percentage} percent full, ${current.status}`}>
+            {`${current.occupancy_percentage}%`}
+          </Text>
+          <View style={styles.statusChip}>
             <View
               style={[
-                styles.capacityFill,
-                {
-                  width: `${Math.max(2, current.occupancy_percentage)}%`,
-                  backgroundColor: statusTone.onDark
-                }
+                styles.statusDot,
+                { backgroundColor: statusTone.onDark }
               ]}
             />
-          </View>
-
-          <View style={styles.heroDivider} />
-
-          <View style={styles.heroFooter}>
-            <Text style={styles.heroFooterLabel}>
-              Best time to go
-            </Text>
-            <Text style={styles.heroFooterValue}>
-              {best.time_label}
+            <Text
+              style={[
+                styles.statusLabel,
+                { color: statusTone.onDark }
+              ]}>
+              {current.status}
             </Text>
           </View>
         </View>
 
-        {/* Today's activity */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>
-            {"Today's activity"}
+        <View style={styles.capacityTrack}>
+          <View
+            style={[
+              styles.capacityFill,
+              {
+                width: `${Math.max(2, current.occupancy_percentage)}%`,
+                backgroundColor: statusTone.onDark
+              }
+            ]}
+          />
+        </View>
+
+        <View style={styles.heroDivider} />
+
+        <View style={styles.heroFooter}>
+          <Text style={styles.heroFooterLabel}>
+            Best time to go
           </Text>
-          <CrowdChart
-            data={crowdWindow}
-            currentHour={now.getHours()}
-          />
+          <Text style={styles.heroFooterValue}>
+            {best.time_label}
+          </Text>
         </View>
+      </View>
 
-        {/* Info tiles */}
-        <View style={styles.tiles}>
-          <StatTile
-            icon={{
-              ios: "clock",
-              android: "schedule",
-              web: "schedule"
-            }}
-            iconBackground={colors.surfaceSage}
-            iconColor={colors.sage}
-            label="Closes at"
-            value="Midnight"
-          />
-          <StatTile
-            icon={{
-              ios: "hourglass",
-              android: "hourglass",
-              web: "hourglass"
-            }}
-            iconBackground={colors.goldSoft}
-            iconColor={colors.goldText}
-            label="Current wait"
-            value={formatWait(current.estimated_wait_minutes)}
-          />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+      {/* Today's activity */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>
+          {"Today's activity"}
+        </Text>
+        <CrowdChart
+          data={crowdWindow}
+          currentHour={now.getHours()}
+        />
+      </View>
+
+      {/* Info tiles */}
+      <View style={styles.tiles}>
+        <StatTile
+          icon={{
+            ios: "clock",
+            android: "schedule",
+            web: "schedule"
+          }}
+          iconBackground={colors.surfaceSage}
+          iconColor={colors.sage}
+          label="Closes at"
+          value="Midnight"
+        />
+        <StatTile
+          icon={{
+            ios: "hourglass",
+            android: "hourglass",
+            web: "hourglass"
+          }}
+          iconBackground={colors.goldSoft}
+          iconColor={colors.goldText}
+          label="Current wait"
+          value={formatWait(current.estimated_wait_minutes)}
+        />
+      </View>
+    </Screen>
   );
 }
 
@@ -719,14 +609,6 @@ function RecCenterContent() {
  * ------------------------------------------------------------------ */
 
 const styles = StyleSheet.create({
-  scroll: {
-    flex: 1
-  },
-  content: {
-    paddingHorizontal: space.xl,
-    paddingTop: 70
-  },
-
   // Header
   header: {
     flexDirection: "row",
@@ -749,9 +631,9 @@ const styles = StyleSheet.create({
     marginTop: space.xs
   },
   avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: radius.xxxl,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.forest,
@@ -763,15 +645,17 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: colors.surface,
-    borderRadius: radius.xxxl,
+    borderRadius: radius.xxl,
     padding: space.lg,
-    minHeight: 64,
-    marginBottom: space.lg
+    minHeight: 64
+  },
+  pressed: {
+    opacity: 0.75
   },
   recIdIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: radius.lg,
+    width: 40,
+    height: 40,
+    borderRadius: radius.md,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.goldSoft
@@ -791,12 +675,18 @@ const styles = StyleSheet.create({
     color: colors.inkMuted,
     marginTop: 2
   },
+  recIdNote: {
+    ...typography.caption,
+    color: colors.inkMuted,
+    marginTop: space.sm
+  },
 
   // Live crowd card
   hero: {
     backgroundColor: colors.forest,
-    borderRadius: radius.xxxl,
+    borderRadius: radius.xxl,
     padding: space.xl,
+    marginTop: space.lg,
     marginBottom: space.xxl
   },
   heroHeader: {
@@ -813,7 +703,7 @@ const styles = StyleSheet.create({
   liveBadge: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.18)",
+    backgroundColor: colors.onDarkLine,
     borderRadius: radius.pill,
     paddingHorizontal: space.md,
     paddingVertical: space.xs
@@ -862,7 +752,7 @@ const styles = StyleSheet.create({
   capacityTrack: {
     height: 8,
     borderRadius: 4,
-    backgroundColor: "rgba(255, 255, 255, 0.18)",
+    backgroundColor: colors.onDarkLine,
     marginTop: space.lg,
     overflow: "hidden"
   },
@@ -904,7 +794,7 @@ const styles = StyleSheet.create({
   // Chart
   chart: {
     backgroundColor: colors.surfaceMuted,
-    borderRadius: radius.lg,
+    borderRadius: radius.md,
     paddingHorizontal: space.md,
     paddingTop: space.md,
     paddingBottom: space.md
@@ -964,7 +854,7 @@ const styles = StyleSheet.create({
   tile: {
     flex: 1,
     backgroundColor: colors.surface,
-    borderRadius: radius.xxxl,
+    borderRadius: radius.xxl,
     padding: space.lg
   },
   tileIcon: {

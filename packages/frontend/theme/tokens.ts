@@ -4,18 +4,21 @@ import type { TextStyle } from "react-native";
  * PolyFit design tokens.
  *
  * Single source of truth for the brand, shared by every screen.
- * The palette is the one established on the rec center screen:
- * forest green, warm cream, burnished gold and mint.
+ * The palette is forest green, warm cream, burnished gold and mint.
  *
- * `#789F90` was replaced by `#4A7361` for muted text, because
- * `#789F90` only reaches 2.7:1 against the cream canvas and fails
- * WCAG AA for body text. Gold is never used for body text, because
- * both `#BD8013` and `#E8B54A` failed WCAG AA against the cream
- * canvas.
+ * Contrast notes, measured against the cream canvas (`#F8F6F0`):
+ * - `sage` (#4A7361) is 4.9:1, so it is safe for body copy.
+ * - The old muted green `#789F90` was 2.7:1 and failed WCAG AA,
+ *   so it was replaced everywhere.
+ * - `inkPlaceholder` (#67737B) is 4.8:1 on the input surface, so a
+ *   placeholder is still readable once the field is filled in.
+ * - Gold is never used for body text: both `#BD8013` and `#E8B54A`
+ *   failed WCAG AA against the cream canvas.
  */
 export const colors = {
   // Brand
   forest: "#154734",
+  forestDeep: "#0F3727",
   sage: "#4A7361",
   mint: "#87CDC2",
   gold: "#BD8013",
@@ -30,12 +33,12 @@ export const colors = {
   surfaceSage: "#E6EFEA",
   surfaceInput: "#FAFCFA",
   surfaceRow: "#F8FAF9",
-  surfaceAvatar: "#D7DDDA",
+  surfaceSunken: "#EDE9DC",
 
   // Text
   ink: "#154734",
   inkMuted: "#5A6570",
-  inkPlaceholder: "#9CA3AF",
+  inkPlaceholder: "#67737B",
   onDark: "#FFFFFF",
   onDarkMuted: "#C9DDD5",
   onDarkLine: "rgba(255, 255, 255, 0.18)",
@@ -45,6 +48,7 @@ export const colors = {
   divider: "#F0F4F2",
   overlay: "rgba(21, 71, 52, 0.35)",
   danger: "#B91C1C",
+  dangerSoft: "#FBEAE8",
   chartBar: "#5E8F7B"
 } as const;
 
@@ -79,15 +83,35 @@ export const radius = {
 export const typography = {
   display: { fontSize: 26, lineHeight: 32, fontWeight: "700" },
   metric: { fontSize: 40, lineHeight: 46, fontWeight: "700" },
-  screenTitle: { fontSize: 30, lineHeight: 36, fontWeight: "800" },
+  screenTitle: {
+    fontSize: 28,
+    lineHeight: 34,
+    fontWeight: "700"
+  },
   title: { fontSize: 19, lineHeight: 25, fontWeight: "700" },
   heading: { fontSize: 17, lineHeight: 23, fontWeight: "700" },
   body: { fontSize: 15, lineHeight: 21, fontWeight: "400" },
-  bodyStrong: { fontSize: 15, lineHeight: 21, fontWeight: "600" },
-  bodySmall: { fontSize: 14, lineHeight: 20, fontWeight: "400" },
+  bodyStrong: {
+    fontSize: 15,
+    lineHeight: 21,
+    fontWeight: "600"
+  },
+  bodySmall: {
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: "400"
+  },
   caption: { fontSize: 13, lineHeight: 18, fontWeight: "400" },
-  captionStrong: { fontSize: 13, lineHeight: 18, fontWeight: "700" },
-  fieldLabel: { fontSize: 14, lineHeight: 20, fontWeight: "700" },
+  captionStrong: {
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: "700"
+  },
+  fieldLabel: {
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: "700"
+  },
   label: { fontSize: 12, lineHeight: 16, fontWeight: "600" },
   eyebrow: {
     fontSize: 12,
@@ -96,3 +120,34 @@ export const typography = {
     letterSpacing: 1
   }
 } satisfies Record<string, TextStyle>;
+
+/**
+ * Shared control metrics. `minTouch` is the WCAG 2.2 target size
+ * floor, so every tappable element in the app can be checked
+ * against one number.
+ */
+export const control = {
+  minTouch: 44,
+  buttonHeight: 52,
+  inputHeight: 48,
+  iconSm: 18,
+  iconMd: 22,
+  iconLg: 28,
+  avatarSm: 40,
+  avatarMd: 44,
+  avatarLg: 56
+} as const;
+
+/**
+ * A single, restrained elevation level. Shadows are used to lift one
+ * primary action per screen, not to decorate containers.
+ */
+export const shadows = {
+  raised: {
+    shadowColor: colors.forest,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.18,
+    shadowRadius: 10,
+    elevation: 4
+  }
+} as const;

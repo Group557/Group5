@@ -1,41 +1,41 @@
 import { useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
+
 import { supabase } from "../../../../utils/supabase";
 import { useAuth } from "../../context/AuthProvider";
+import {
+  BrandMark,
+  Button,
+  Icon,
+  Screen,
+  colors,
+  space,
+  typography
+} from "../../theme";
 
 export default function Onboarding() {
-  // 1. Get session and refreshProfile from useAuth.
   const { session, refreshProfile } = useAuth();
 
-  // 2. Create state:
-  // saving: boolean, initially false
-  // message: string, initially empty
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
 
   async function handleSubmit() {
-    // 3. If already saving, stop.
+    // Already saving, so stop.
     if (saving) {
       return;
     }
 
-    // 4. If there is no session:
-    // Show a message asking the user to sign in, then stop.
+    // No session, so ask the user to sign in.
     if (!session) {
       setMessage("Please sign in to perform this action");
       return;
     }
 
-    // 5. Start saving and clear the previous message.
     setSaving(true);
     setMessage("");
 
     try {
-      // 6. Update the profiles table:
-      // - Set onboarded to true.
-      // - Match the row ID to session.user.id.
-      // - Request the updated onboarded value.
-      // - Expect one returned row.
+      // Mark the profile as onboarded.
       const { data: profile, error: queryError } =
         await supabase
           .from("profiles")
@@ -44,47 +44,168 @@ export default function Onboarding() {
           .select("onboarded")
           .single();
 
-      // 7. If Supabase returns an error:
-      // Show its message and stop.
       if (queryError) {
         setMessage(queryError.message);
         return;
       }
 
-      // 8. If the returned profile doesn't confirm completion:
-      // Show a failure message and stop.
       if (!profile?.onboarded) {
         setMessage("Your onboarded status could not be saved.");
         return;
       }
-      await refreshProfile();
 
-      // 9. Refresh the provider's profile information.
+      // Refresh the provider's profile information.
+      await refreshProfile();
     } catch {
-      // 10. Show a message for unexpected failures.
       setMessage("Unable to save. Please try again");
     } finally {
-      // 11. Finish saving.
       setSaving(false);
     }
   }
 
   return (
-    <View>
-      <Text>Onboarding page</Text>
+    <Screen scroll>
+      <View style={styles.brand}>
+        <BrandMark />
+      </View>
 
-      {/* 12. Connect handleSubmit to onPress.
-          Disable the button while saving. */}
-      <Pressable
-        disabled={saving}
+      <View style={styles.heading}>
+        <Text style={styles.title}>Welcome to PolyFit</Text>
+        <Text style={styles.subtitle}>
+          Track your workouts, build your exercise library, and
+          see how busy the recreation center is before you go.
+        </Text>
+      </View>
+
+      <View style={styles.points}>
+        <Point
+          icon={{
+            ios: "figure.run",
+            android: "directions_run",
+            web: "directions_run"
+          }}
+          title="Your workouts"
+          body="Combine saved exercises into a plan you can follow."
+        />
+        <Point
+          icon={{
+            ios: "building.2",
+            android: "location_city",
+            web: "location_city"
+          }}
+          title="Live rec center crowd"
+          body="See how full it is right now, and when it is quietest."
+        />
+      </View>
+
+      {message ? (
+        <View
+          style={styles.message}
+          accessibilityLiveRegion="polite"
+          accessibilityRole="alert">
+          <Text style={styles.messageText}>{message}</Text>
+        </View>
+      ) : null}
+
+      <Button
+        label="Get started"
         onPress={() => {
           void handleSubmit();
-        }}>
-        {/* Show "Saving..." while saving, otherwise "Submit". */}
-        <Text>{saving ? "Saving..." : "Submit"}</Text>
-      </Pressable>
+        }}
+        loading={saving}
+        style={styles.cta}
+      />
+    </Screen>
+  );
+}
 
-      {message ? <Text>{message}</Text> : null}
+function Point({
+  icon,
+  title,
+  body
+}: {
+  icon: {
+    ios: string;
+    android: string;
+    web: string;
+  };
+  title: string;
+  body: string;
+}) {
+  return (
+    <View style={styles.point}>
+      <View style={styles.pointIcon}>
+        <Icon name={icon} size={20} color={colors.forest} />
+      </View>
+
+      <View style={styles.pointText}>
+        <Text style={styles.pointTitle}>{title}</Text>
+        <Text style={styles.pointBody}>{body}</Text>
+      </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  brand: {
+    paddingTop: space.md,
+    paddingBottom: space.xxl
+  },
+  heading: {
+    marginBottom: space.xxl
+  },
+  title: {
+    ...typography.display,
+    color: colors.ink
+  },
+  subtitle: {
+    ...typography.body,
+    color: colors.inkMuted,
+    marginTop: space.sm,
+    maxWidth: 320
+  },
+
+  points: {
+    gap: space.lg
+  },
+  point: {
+    flexDirection: "row",
+    alignItems: "flex-start"
+  },
+  pointIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: colors.surfaceSage,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: space.md
+  },
+  pointText: {
+    flex: 1
+  },
+  pointTitle: {
+    ...typography.bodyStrong,
+    color: colors.ink
+  },
+  pointBody: {
+    ...typography.caption,
+    color: colors.inkMuted,
+    marginTop: 2
+  },
+
+  message: {
+    marginTop: space.xl,
+    backgroundColor: colors.dangerSoft,
+    borderRadius: 12,
+    padding: space.md
+  },
+  messageText: {
+    ...typography.caption,
+    color: colors.danger
+  },
+
+  cta: {
+    marginTop: space.xxl
+  }
+});

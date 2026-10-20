@@ -1,6 +1,12 @@
 import { StyleSheet } from "react-native";
 
-import { colors, radius, space, typography } from "./tokens";
+import {
+  colors,
+  control,
+  radius,
+  space,
+  typography
+} from "./tokens";
 
 /**
  * Shared stylesheet.
@@ -9,7 +15,7 @@ import { colors, radius, space, typography } from "./tokens";
  * thing to a global stylesheet is one `StyleSheet.create` that every
  * screen imports. The groups below cover the patterns that show up on
  * more than one screen: page scaffolding, text, buttons, cards, form
- * fields, modals and the library sheet.
+ * fields, modals, banners and the tab bar.
  *
  * Anything specific to a single screen stays in that screen's own
  * stylesheet, but reaches for these tokens for color, spacing and
@@ -24,7 +30,7 @@ export const layout = StyleSheet.create({
   },
   scrollContent: {
     padding: space.xl,
-    paddingTop: space.xxxl,
+    paddingTop: space.md,
     paddingBottom: space.huge
   },
   section: {
@@ -48,13 +54,12 @@ export const layout = StyleSheet.create({
 export const text = StyleSheet.create({
   screenTitle: {
     ...typography.screenTitle,
-    color: colors.ink,
-    marginTop: space.xs
+    color: colors.ink
   },
   subtitle: {
     ...typography.bodySmall,
     color: colors.inkMuted,
-    marginTop: space.sm
+    marginTop: space.xs
   },
   eyebrow: {
     ...typography.eyebrow,
@@ -70,9 +75,7 @@ export const text = StyleSheet.create({
   },
   fieldLabel: {
     ...typography.fieldLabel,
-    color: colors.ink,
-    marginTop: space.md,
-    marginBottom: space.sm
+    color: colors.ink
   },
   body: {
     ...typography.body,
@@ -122,13 +125,16 @@ export const text = StyleSheet.create({
 
 /** Buttons. */
 export const buttons = StyleSheet.create({
-  primary: {
-    backgroundColor: colors.forest,
+  base: {
+    minHeight: control.buttonHeight,
     borderRadius: radius.lg,
-    paddingVertical: 15,
+    paddingHorizontal: space.xl,
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row"
+  },
+  primary: {
+    backgroundColor: colors.forest
   },
   primaryText: {
     ...typography.bodyStrong,
@@ -137,10 +143,7 @@ export const buttons = StyleSheet.create({
     color: colors.onDark
   },
   secondary: {
-    backgroundColor: colors.surfaceSage,
-    borderRadius: radius.lg,
-    paddingVertical: 15,
-    alignItems: "center"
+    backgroundColor: colors.surfaceSage
   },
   secondaryText: {
     ...typography.bodyStrong,
@@ -148,8 +151,27 @@ export const buttons = StyleSheet.create({
     fontWeight: "800",
     color: colors.forest
   },
+  ghost: {
+    backgroundColor: "transparent"
+  },
+  ghostText: {
+    ...typography.bodyStrong,
+    fontSize: 16,
+    fontWeight: "700",
+    color: colors.forest
+  },
+  danger: {
+    backgroundColor: colors.danger
+  },
+  dangerText: {
+    ...typography.bodyStrong,
+    fontSize: 16,
+    fontWeight: "800",
+    color: colors.onDark
+  },
   backLink: {
-    marginBottom: space.xxxl
+    minHeight: control.minTouch,
+    justifyContent: "center"
   },
   backText: {
     ...typography.body,
@@ -160,7 +182,7 @@ export const buttons = StyleSheet.create({
     opacity: 0.75
   },
   disabled: {
-    opacity: 0.6
+    opacity: 0.45
   }
 });
 
@@ -169,14 +191,13 @@ export const cards = StyleSheet.create({
   card: {
     backgroundColor: colors.surface,
     borderRadius: radius.xxl,
-    padding: 18
+    padding: space.lg
   },
   empty: {
     backgroundColor: colors.surface,
     borderRadius: radius.xxl,
     padding: space.xl,
-    alignItems: "center",
-    marginBottom: space.xxl
+    alignItems: "center"
   },
   item: {
     backgroundColor: colors.surface,
@@ -191,12 +212,20 @@ export const cards = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: space.lg,
     marginBottom: 10
+  },
+  iconBox: {
+    width: control.avatarMd,
+    height: control.avatarMd,
+    borderRadius: radius.md,
+    alignItems: "center",
+    justifyContent: "center"
   }
 });
 
 /** Form fields. */
 export const form = StyleSheet.create({
   input: {
+    minHeight: control.inputHeight,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.md,
@@ -206,7 +235,12 @@ export const form = StyleSheet.create({
     paddingHorizontal: 13,
     paddingVertical: 12
   },
+  inputError: {
+    borderColor: colors.danger,
+    backgroundColor: colors.dangerSoft
+  },
   select: {
+    minHeight: control.inputHeight,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.md,
@@ -244,7 +278,7 @@ export const modal = StyleSheet.create({
   card: {
     backgroundColor: colors.surface,
     borderRadius: radius.xxl,
-    padding: 18
+    padding: space.lg
   },
   title: {
     ...typography.heading,
@@ -326,10 +360,12 @@ export const sheet = StyleSheet.create({
 /** Small filter chips. */
 export const chips = StyleSheet.create({
   chip: {
+    minHeight: 36,
     backgroundColor: colors.surfaceSage,
     borderRadius: radius.sm,
     paddingVertical: space.sm,
-    paddingHorizontal: 14
+    paddingHorizontal: 14,
+    justifyContent: "center"
   },
   chipActive: {
     backgroundColor: colors.forest
@@ -343,5 +379,42 @@ export const chips = StyleSheet.create({
     ...typography.caption,
     fontWeight: "700",
     color: colors.onDark
+  }
+});
+
+/**
+ * Inline banners for errors and hints. The message is announced by
+ * the screen reader, so it must sit next to the thing it describes
+ * rather than in a toast.
+ */
+export const banner = StyleSheet.create({
+  error: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: space.sm,
+    backgroundColor: colors.dangerSoft,
+    borderRadius: radius.md,
+    padding: space.md
+  },
+  errorIcon: {
+    marginTop: 1
+  },
+  errorText: {
+    ...typography.caption,
+    flex: 1,
+    color: colors.danger
+  }
+});
+
+/** Bottom tab bar. */
+export const tabBar = StyleSheet.create({
+  bar: {
+    backgroundColor: colors.surface,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.border
+  },
+  label: {
+    fontSize: 11,
+    fontWeight: "600"
   }
 });
