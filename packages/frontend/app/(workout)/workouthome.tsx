@@ -1,3 +1,5 @@
+import { router, useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -6,8 +8,6 @@ import {
   Text,
   View
 } from "react-native";
-import { router, useFocusEffect } from "expo-router";
-import { useCallback, useState } from "react";
 
 import { supabase } from "../../../../utils/supabase";
 
@@ -117,7 +117,9 @@ export default function WorkoutHomePage() {
             <Text style={styles.emptyIcon}>+</Text>
           </View>
 
-          <Text style={styles.emptyTitle}>No exercises yet</Text>
+          <Text style={styles.emptyTitle}>
+            No exercises yet
+          </Text>
           <Text style={styles.emptyText}>
             Add exercises like Squats, Bench Press, or Running.
             You can choose them later when creating a workout.
