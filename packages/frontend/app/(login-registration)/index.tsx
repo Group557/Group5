@@ -1,6 +1,12 @@
 import { router } from "expo-router";
 import { useState } from "react";
-import { Pressable, Text, TextInput, View } from "react-native";
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View
+} from "react-native";
 import { supabase } from "../../../../utils/supabase";
 
 async function Login() {
@@ -76,48 +82,83 @@ export default function HomeScreen() {
   }
 
   return (
-    <View>
-      <Text>Account Login/Create an Account</Text>
-      <Text>Enter your Cal poly Email</Text>
-      <TextInput
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        style={{
-          width: 180,
-          height: 25,
-          padding: 5,
-          fontSize: 13,
-          boxSizing: "border-box",
-          borderWidth: 1
-        }}
-      />
-      <TextInput
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        autoCapitalize="none"
-        style={{
-          width: 180,
-          height: 25,
-          borderWidth: 1,
-          padding: 10
-        }}
-      />
-      <Pressable
-        style={{
-          width: 140,
-          height: 25
-        }}
+    <View style={styles.container}>
+      <View style={styles.card}>
+        <Text style={styles.login_text}>
+          Account Login/Create an Account
+        </Text>
+        <Text>Enter your Cal poly Email</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Email"
+          value={email}
+          onChangeText={setEmail}
+        />
+        <TextInput
+          placeholder="Password"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+          autoCapitalize="none"
+          style={styles.input}
+        />
+        <Pressable
+          style={styles.button}
 
-        onPress={handleRegister}>
-        <Text>Register</Text>
-      </Pressable>
-      <Pressable onPress={handleSignIn}>
-        <Text>Sign in</Text>
-      </Pressable>
-      <Text>{message}</Text>
+          onPress={handleRegister}>
+          <Text>Register(first time users)</Text>
+        </Pressable>
+        <Pressable onPress={handleSignIn} style={styles.button}>
+          <Text>Sign in</Text>
+        </Pressable>
+        <Text>{message}</Text>
+      </View>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#234636"
+  },
+  card: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    padding: 20,
+    alignSelf: "center",
+    marginTop: 100,
+    width: "100%",
+    height: "auto",
+    maxWidth: 400
+  },
+  login_text: {
+    textAlign: "center",
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 20,
+    color: "#222222"
+  },
+  input: {
+    width: "100%",
+    minHeight: 40,
+    backgroundColor: "#E5E4D7",
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    fontSize: 16,
+    color: "#222222"
+  },
+  button: {
+    width: "100%",
+    minHeight: 40,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    fontSize: 16,
+    color: "#222222",
+    backgroundColor: "#84AA9E",
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center"
+  }
+});
