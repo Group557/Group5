@@ -59,7 +59,7 @@ function AppNavigation() {
 
       <Stack.Protected
         guard={session !== null && onboarded === true}>
-        <Stack.Screen name="(dashboard)/dashboard" />
+        <Stack.Screen name="(Home)/homepage" />
       </Stack.Protected>
     </Stack>
   );

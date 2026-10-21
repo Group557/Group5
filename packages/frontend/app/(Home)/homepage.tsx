@@ -1,6 +1,34 @@
-import { ScrollView, StyleSheet, Text, View } from "react-native";
-
+import { useState } from "react";
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View
+} from "react-native";
+import { supabase } from "../../../../utils/supabase";
 export default function HomeScreen() {
+  const [message, setMessage] = useState("");
+
+  async function handleLogout() {
+    // TODO: Clear the previous message.
+    setMessage("");
+
+    try {
+      // TODO: Await supabase.auth.signOut({ scope: "local" }).
+      const { error } = await supabase.auth.signOut({
+        scope: "local"
+      });
+      // Destructure "error" from the result.
+      if (error) {
+        setMessage(error.message);
+      }
+      // TODO: If there is an error, display its message.
+    } catch {
+      // TODO: Display "Unable to log out. Please try again."
+      setMessage("Unable to log out. Please try again");
+    }
+  }
   return (
     <ScrollView
       style={styles.container}
@@ -108,6 +136,30 @@ export default function HomeScreen() {
           Updates and reminders will appear here.
         </Text>
       </View>
+      <Pressable
+        accessibilityRole="button"
+        onPress={handleLogout}
+        style={({ pressed }) => [
+          {
+            backgroundColor: pressed ? "#D7DDDA" : "#84AA9E",
+            padding: 10,
+            borderRadius: 5,
+            alignItems: "center",
+            marginTop: 20
+          }
+        ]}>
+        <Text style={{ color: "#FFFFFF", fontWeight: "700" }}>
+          Logout
+        </Text>
+      </Pressable>
+
+      {message ? (
+        <Text
+          accessibilityRole="alert"
+          style={{ color: "red", marginTop: 10 }}>
+          {message}
+        </Text>
+      ) : null}
     </ScrollView>
   );
 }

@@ -25,7 +25,7 @@ export default function HomeScreen() {
       return;
     }
     if (profile?.onboarded) {
-      router.replace("/dashboard");
+      router.replace("/homepage");
     } else {
       router.replace("/(onboarding)/onboard");
     }
