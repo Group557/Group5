@@ -157,7 +157,7 @@ export default function AddWorkoutScreen() {
     if (router.canGoBack()) {
       router.back();
     } else {
-      router.replace("/workout/workouthome");
+      router.replace("/workouthome");
     }
   };
 
@@ -511,7 +511,7 @@ export default function AddWorkoutScreen() {
                   style={styles.addExerciseLink}
                   onPress={() => {
                     setLibraryOpen(false);
-                    router.push("/workout/add-exercise");
+                    router.push("/add-exercise");
                   }}>
                   <Text style={styles.addExerciseLinkText}>
                     + Add an Exercise
