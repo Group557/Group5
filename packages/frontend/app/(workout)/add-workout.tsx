@@ -50,8 +50,11 @@ export default function AddWorkoutScreen() {
     useState("");
 
   const [exercises, setExercises] = useState<Exercise[]>([]);
-  const [loadingExercises, setLoadingExercises] = useState(false);
-  const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [loadingExercises, setLoadingExercises] =
+    useState(false);
+  const [expandedId, setExpandedId] = useState<number | null>(
+    null
+  );
   const [addedIds, setAddedIds] = useState<number[]>([]);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
@@ -157,7 +160,7 @@ export default function AddWorkoutScreen() {
     if (router.canGoBack()) {
       router.back();
     } else {
-      router.replace("/workout/workouthome");
+      router.replace("/workouthome");
     }
   };
 
@@ -171,18 +174,22 @@ export default function AddWorkoutScreen() {
     setSaveError("");
 
     // 1. Save the workout itself.
-    const { data: workout, error: workoutError } = await supabase
-      .from("workouts")
-      .insert({
-        workout_name: workoutName.trim(),
-        workout_category: category || null,
-        workout_notes: description || null
-      })
-      .select("id")
-      .single();
+    const { data: workout, error: workoutError } =
+      await supabase
+        .from("workouts")
+        .insert({
+          workout_name: workoutName.trim(),
+          workout_category: category || null,
+          workout_notes: description || null
+        })
+        .select("id")
+        .single();
 
     if (workoutError || !workout) {
-      console.log("Could not save workout:", workoutError?.message);
+      console.log(
+        "Could not save workout:",
+        workoutError?.message
+      );
       setSaveError(
         workoutError
           ? `Could not save workout: ${workoutError.message}`
@@ -204,7 +211,10 @@ export default function AddWorkoutScreen() {
         .insert(rows);
 
       if (linkError) {
-        console.log("Could not save workout exercises:", linkError.message);
+        console.log(
+          "Could not save workout exercises:",
+          linkError.message
+        );
         setSaveError(
           `Workout saved, but exercises failed: ${linkError.message}`
         );
@@ -222,9 +232,7 @@ export default function AddWorkoutScreen() {
       style={styles.page}
       behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <ScrollView contentContainerStyle={styles.content}>
-        <Pressable
-          style={styles.backButton}
-          onPress={goBack}>
+        <Pressable style={styles.backButton} onPress={goBack}>
           <Text style={styles.backText}>‹ Back</Text>
         </Pressable>
 
@@ -321,7 +329,10 @@ export default function AddWorkoutScreen() {
         </Pressable>
 
         <Pressable
-          style={[styles.saveButton, saving && styles.saveButtonDisabled]}
+          style={[
+            styles.saveButton,
+            saving && styles.saveButtonDisabled
+          ]}
           disabled={saving}
           onPress={handleCreateWorkout}>
           <Text style={styles.saveButtonText}>
@@ -449,7 +460,9 @@ export default function AddWorkoutScreen() {
               ) : (
                 visibleExercises.map((exercise) => {
                   const isExpanded = expandedId === exercise.id;
-                  const isAdded = addedIds.includes(exercise.id);
+                  const isAdded = addedIds.includes(
+                    exercise.id
+                  );
                   return (
                     <View
                       key={exercise.id}
@@ -461,12 +474,15 @@ export default function AddWorkoutScreen() {
                       <View style={styles.exerciseRowMain}>
                         <Pressable
                           style={styles.exerciseRowText}
-                          onPress={() => toggleExpanded(exercise.id)}>
+                          onPress={() =>
+                            toggleExpanded(exercise.id)
+                          }>
                           <Text style={styles.exerciseName}>
                             {exercise.exercise_name}
                           </Text>
                           {exercise.exercise_category ? (
-                            <Text style={styles.exerciseCategory}>
+                            <Text
+                              style={styles.exerciseCategory}>
                               {exercise.exercise_category}
                             </Text>
                           ) : null}
@@ -474,7 +490,9 @@ export default function AddWorkoutScreen() {
 
                         <Pressable
                           hitSlop={8}
-                          onPress={() => toggleFavorite(exercise)}>
+                          onPress={() =>
+                            toggleFavorite(exercise)
+                          }>
                           <Text style={styles.heartText}>
                             {exercise.is_favorite ? "❤️" : "🤍"}
                           </Text>
@@ -485,13 +503,17 @@ export default function AddWorkoutScreen() {
                         <Pressable
                           style={[
                             styles.addToWorkoutButton,
-                            isAdded && styles.addToWorkoutButtonAdded
+                            isAdded &&
+                              styles.addToWorkoutButtonAdded
                           ]}
-                          onPress={() => toggleAdded(exercise.id)}>
+                          onPress={() =>
+                            toggleAdded(exercise.id)
+                          }>
                           <Text
                             style={[
                               styles.addToWorkoutText,
-                              isAdded && styles.addToWorkoutTextAdded
+                              isAdded &&
+                                styles.addToWorkoutTextAdded
                             ]}>
                             {isAdded
                               ? "✓ Added to Workout"
@@ -511,7 +533,7 @@ export default function AddWorkoutScreen() {
                   style={styles.addExerciseLink}
                   onPress={() => {
                     setLibraryOpen(false);
-                    router.push("/workout/add-exercise");
+                    router.push("/add-exercise");
                   }}>
                   <Text style={styles.addExerciseLinkText}>
                     + Add an Exercise
@@ -522,9 +544,7 @@ export default function AddWorkoutScreen() {
               <Pressable
                 style={styles.doneButton}
                 onPress={() => setLibraryOpen(false)}>
-                <Text style={styles.doneButtonText}>
-                  Done
-                </Text>
+                <Text style={styles.doneButtonText}>Done</Text>
               </Pressable>
             </View>
           </Pressable>
