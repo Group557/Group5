@@ -24,7 +24,7 @@ export default function AddExerciseScreen() {
     if (router.canGoBack()) {
       router.back();
     } else {
-      router.replace("/workout/workouthome");
+      router.replace("/workouthome");
     }
   };
 
