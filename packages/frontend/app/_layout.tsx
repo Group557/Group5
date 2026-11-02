@@ -66,6 +66,9 @@ function AppNavigation() {
         <Stack.Screen name="(Home)/buddy-finder" />
         <Stack.Screen name="(Home)/buddy-filters" />
         <Stack.Screen name="(Home)/buddy-profile" />
+        <Stack.Screen name="(Home)/buddy-my-profile" />
+        <Stack.Screen name="(Home)/buddy-messages" />
+        <Stack.Screen name="(Home)/buddy-chat" />
       </Stack.Protected>
     </Stack>
   );
