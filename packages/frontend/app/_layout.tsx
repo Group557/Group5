@@ -66,7 +66,7 @@ function AppNavigation() {
         <Stack.Screen name="(Home)/rec-center" />
       </Stack.Protected>
       <Stack.Protected
-        guard={session !== null && onboarded === true}>
+        guard={true}>
         <Stack.Screen name="(tabs)" />
       </Stack.Protected>
     </Stack>
