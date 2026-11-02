@@ -10,7 +10,7 @@ import {
   TextInput,
   View
 } from "react-native";
-import { supabase } from "../../../../utils/supabase";
+import { supabase } from "../../../../../utils/supabase";
 
 export default function AddExerciseScreen() {
   const [exerciseName, setExerciseName] = useState("");

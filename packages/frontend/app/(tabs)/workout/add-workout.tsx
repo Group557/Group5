@@ -13,7 +13,7 @@ import {
   View
 } from "react-native";
 
-import { supabase } from "../../../../utils/supabase";
+import { supabase } from "../../../../../utils/supabase";
 
 const CATEGORIES = [
   "Cardio / Aerobic",
