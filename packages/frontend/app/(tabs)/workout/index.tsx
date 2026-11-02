@@ -45,11 +45,11 @@ export default function WorkoutHomePage() {
   );
 
   const handleAddExercise = () => {
-    router.push("/(workout)/add-exercise");
+    router.push("/workout/add-exercise");
   };
 
   const handleCreateWorkout = () => {
-    router.push("/(workout)/add-workout");
+    router.push("/workout/add-workout");
   };
 
   return (
