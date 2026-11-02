@@ -7,6 +7,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import Icon from "@/components/ui/Icon";
 import {
   layout,
   palette,
@@ -141,6 +142,15 @@ export default function RecIdScreen() {
           ]}
           accessibilityRole="button"
           accessibilityLabel="Back">
+          <Icon
+            name={{
+              ios: "chevron.left",
+              android: "chevron_left",
+              web: "chevron_left"
+            }}
+            size={18}
+            color={palette.sage}
+          />
           <Text style={styles.backLabel}>Back</Text>
         </Pressable>
         <Text style={styles.title} accessibilityRole="header">
@@ -185,9 +195,11 @@ const styles = StyleSheet.create({
     marginTop: layout.screenTop
   },
   backButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: space.xs,
     minWidth: 64,
-    minHeight: layout.minTouch,
-    justifyContent: "center"
+    minHeight: layout.minTouch
   },
   pressed: {
     opacity: layout.pressedOpacity
