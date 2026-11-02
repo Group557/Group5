@@ -82,7 +82,7 @@ export default function AddExerciseScreen() {
               <Text style={styles.label}>Sets</Text>
               <TextInput
                 style={styles.input}
-                placeholder="3"
+                placeholder="Example: 3"
                 placeholderTextColor="#9CA3AF"
                 keyboardType="numeric"
                 value={sets}
@@ -94,7 +94,7 @@ export default function AddExerciseScreen() {
               <Text style={styles.label}>Reps</Text>
               <TextInput
                 style={styles.input}
-                placeholder="8"
+                placeholder="Example: 8"
                 placeholderTextColor="#9CA3AF"
                 keyboardType="numeric"
                 value={reps}
