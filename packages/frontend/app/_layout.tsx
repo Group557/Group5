@@ -60,14 +60,12 @@ function AppNavigation() {
       <Stack.Protected
         guard={session !== null && onboarded === true}>
         <Stack.Screen name="(Home)/homepage" />
-      </Stack.Protected>
-      <Stack.Protected
-        guard={session !== null && onboarded === true}>
         <Stack.Screen name="(Home)/rec-center" />
-      </Stack.Protected>
-      <Stack.Protected
-        guard={true}>
+        <Stack.Screen name="(Home)/rec-id" />
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="(Home)/buddy-finder" />
+        <Stack.Screen name="(Home)/buddy-filters" />
+        <Stack.Screen name="(Home)/buddy-profile" />
       </Stack.Protected>
     </Stack>
   );
