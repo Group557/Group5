@@ -26,6 +26,7 @@ export default function WorkoutHomePage() {
     const { data, error } = await supabase
       .from("exercises")
       .select("id, exercise_name, exercise_category")
+      .eq("is_favorite", true)
       .order("exercise_name", { ascending: true });
 
     if (error) {
@@ -75,7 +76,7 @@ export default function WorkoutHomePage() {
         <Text style={styles.eyebrow}>YOUR FITNESS</Text>
         <Text style={styles.title}>My Workouts</Text>
         <Text style={styles.subtitle}>
-          Add exercises, then combine them into a workout.
+          Add exercises, then combine them into a workout
         </Text>
       </View>
 
@@ -83,27 +84,29 @@ export default function WorkoutHomePage() {
       <View style={styles.buttonRow}>
         <Pressable
           style={styles.primaryButton}
-          onPress={handleAddExercise}>
-          <Text style={styles.buttonPlus}>+</Text>
+          onPress={handleCreateWorkout}>
           <Text style={styles.primaryButtonText}>
-            Add Exercise
+            Create Workout
           </Text>
         </Pressable>
 
         <Pressable
           style={styles.secondaryButton}
-          onPress={handleCreateWorkout}>
+          onPress={handleAddExercise}>
+          <Text style={styles.secondaryButtonPlus}>+</Text>
           <Text style={styles.secondaryButtonText}>
-            Create Workout
+            Add Exercise
           </Text>
         </Pressable>
       </View>
 
       {/* Exercises section */}
       <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>My Exercises</Text>
+        <Text style={styles.sectionTitle}>
+          Favorite Exercises
+        </Text>
         <Text style={styles.sectionCount}>
-          {exercises.length} saved
+          {exercises.length} favorited
         </Text>
       </View>
 
@@ -151,7 +154,7 @@ export default function WorkoutHomePage() {
       {/* Workouts section */}
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>
-          Created Workouts
+          Workouts
         </Text>
         <Text style={styles.sectionCount}>0 workouts</Text>
       </View>
@@ -166,7 +169,7 @@ export default function WorkoutHomePage() {
         </Text>
         <Text style={styles.emptyText}>
           After adding exercises, create a workout and select
-          the exercises that belong in it.
+          the exercises or add your own!
         </Text>
       </View>
     </ScrollView>
@@ -271,12 +274,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     flexDirection: "row"
   },
-  buttonPlus: {
-    color: "#FFFFFF",
-    fontSize: 24,
-    marginRight: 8,
-    marginTop: -2
-  },
   primaryButtonText: {
     color: "#FFFFFF",
     fontSize: 16,
@@ -286,7 +283,15 @@ const styles = StyleSheet.create({
     backgroundColor: "#DCEBE5",
     borderRadius: 14,
     paddingVertical: 15,
-    alignItems: "center"
+    alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row"
+  },
+  secondaryButtonPlus: {
+    color: "#154734",
+    fontSize: 24,
+    marginRight: 8,
+    marginTop: -2
   },
   secondaryButtonText: {
     color: "#154734",
