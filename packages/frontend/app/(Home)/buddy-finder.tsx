@@ -18,7 +18,7 @@ import {
 } from "@/constants/theme";
 
 const ACTION_SIZE = 64;
-const UNDO_SIZE = 48;
+const SMALL_ACTION_SIZE = 48;
 /** Photo frame is 500 wide by 530 long. */
 const PHOTO_ASPECT_RATIO = 500 / 530;
 const PILL_HEIGHT = 36;
@@ -83,7 +83,12 @@ export default function BuddyFinderScreen() {
   };
 
   const handleMessagePress = () => {
-    // TODO: message this buddy
+    // TODO: pass this buddy's id once profiles come from the backend
+    router.push("/buddy-chat");
+  };
+
+  const handleInboxPress = () => {
+    router.push("/buddy-messages");
   };
 
   return (
@@ -201,7 +206,7 @@ export default function BuddyFinderScreen() {
             disabled={!canUndo}
             style={({ pressed }) => [
               styles.action,
-              styles.actionUndo,
+              styles.actionSmall,
               styles.actionUndoPosition,
               styles.actionOutlined,
               !canUndo && styles.actionDisabled,
@@ -256,6 +261,28 @@ export default function BuddyFinderScreen() {
                 web: "close"
               }}
               size={24}
+              color={palette.forest}
+            />
+          </Pressable>
+          <Pressable
+            onPress={handleInboxPress}
+            style={({ pressed }) => [
+              styles.action,
+              styles.actionSmall,
+              styles.actionInboxPosition,
+              styles.actionOutlined,
+              pressed && styles.pressed
+            ]}
+            accessibilityRole="button"
+            accessibilityLabel="Messages"
+            accessibilityHint="Opens your conversations">
+            <Icon
+              name={{
+                ios: "paperplane",
+                android: "send",
+                web: "send"
+              }}
+              size={20}
               color={palette.forest}
             />
           </Pressable>
@@ -395,12 +422,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: space.xxl
   },
-  // Sits one gap left of the message button, measured from the
-  // centre line, so message and pass stay centred on any width.
+  // Undo and inbox sit one gap outside the message and pass buttons,
+  // measured from the centre line, so those two stay centred.
   actionUndoPosition: {
     position: "absolute",
     right: "50%",
     marginRight: ACTION_SIZE + space.xxl / 2 + space.lg
+  },
+  actionInboxPosition: {
+    position: "absolute",
+    left: "50%",
+    marginLeft: ACTION_SIZE + space.xxl / 2 + space.lg
   },
   action: {
     width: ACTION_SIZE,
@@ -414,10 +446,10 @@ const styles = StyleSheet.create({
     backgroundColor: palette.surface,
     borderColor: palette.forest
   },
-  actionUndo: {
-    width: UNDO_SIZE,
-    height: UNDO_SIZE,
-    borderRadius: UNDO_SIZE / 2
+  actionSmall: {
+    width: SMALL_ACTION_SIZE,
+    height: SMALL_ACTION_SIZE,
+    borderRadius: SMALL_ACTION_SIZE / 2
   },
   actionDisabled: {
     opacity: 0.4
