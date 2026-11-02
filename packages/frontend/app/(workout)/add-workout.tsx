@@ -434,7 +434,11 @@ export default function AddWorkoutScreen() {
                     }
                   }}>
                   <Ionicons
-                    name="heart"
+                    name={
+                      filter === "favorites"
+                        ? "heart"
+                        : "heart-outline"
+                    }
                     size={14}
                     color={
                       filter === "favorites"
@@ -448,7 +452,7 @@ export default function AddWorkoutScreen() {
                       filter === "favorites" &&
                         styles.filterButtonTextActive
                     ]}>
-                    Favorites
+                    {filter === "favorites" ? "Favorites" : "All"}
                   </Text>
                 </Pressable>
 
