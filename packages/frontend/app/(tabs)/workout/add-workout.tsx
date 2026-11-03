@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useCallback, useState } from "react";
 import {
@@ -14,6 +15,9 @@ import {
 } from "react-native";
 
 import { supabase } from "../../../../../utils/supabase";
+
+/** Forest green from the app theme, outlined until favorited. */
+const HEART_COLOR = "#154734";
 
 const CATEGORIES = [
   "Cardio / Aerobic",
@@ -160,7 +164,7 @@ export default function AddWorkoutScreen() {
     if (router.canGoBack()) {
       router.back();
     } else {
-      router.replace("/workouthome");
+      router.replace("/workout");
     }
   };
 
@@ -415,6 +419,7 @@ export default function AddWorkoutScreen() {
                 <Pressable
                   style={[
                     styles.filterButton,
+                    styles.filterButtonWithIcon,
                     filter === "favorites" &&
                       styles.filterButtonActive
                   ]}
@@ -428,13 +433,22 @@ export default function AddWorkoutScreen() {
                       setSearchQuery("");
                     }
                   }}>
+                  <Ionicons
+                    name="heart"
+                    size={14}
+                    color={
+                      filter === "favorites"
+                        ? "#FFFFFF"
+                        : HEART_COLOR
+                    }
+                  />
                   <Text
                     style={[
                       styles.filterButtonText,
                       filter === "favorites" &&
                         styles.filterButtonTextActive
                     ]}>
-                    ❤️ Favorites
+                    Favorites
                   </Text>
                 </Pressable>
 
@@ -490,12 +504,25 @@ export default function AddWorkoutScreen() {
 
                         <Pressable
                           hitSlop={8}
+                          style={styles.heartButton}
                           onPress={() =>
                             toggleFavorite(exercise)
+                          }
+                          accessibilityRole="button"
+                          accessibilityLabel={
+                            exercise.is_favorite
+                              ? `Remove ${exercise.exercise_name} from favorites`
+                              : `Add ${exercise.exercise_name} to favorites`
                           }>
-                          <Text style={styles.heartText}>
-                            {exercise.is_favorite ? "❤️" : "🤍"}
-                          </Text>
+                          <Ionicons
+                            name={
+                              exercise.is_favorite
+                                ? "heart"
+                                : "heart-outline"
+                            }
+                            size={22}
+                            color={HEART_COLOR}
+                          />
                         </Pressable>
                       </View>
 
@@ -533,7 +560,7 @@ export default function AddWorkoutScreen() {
                   style={styles.addExerciseLink}
                   onPress={() => {
                     setLibraryOpen(false);
-                    router.push("/add-exercise");
+                    router.push("/workout/add-exercise");
                   }}>
                   <Text style={styles.addExerciseLinkText}>
                     + Add an Exercise
@@ -884,6 +911,11 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 14
   },
+  filterButtonWithIcon: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6
+  },
   filterButtonActive: {
     backgroundColor: "#154734"
   },
@@ -941,8 +973,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginTop: 2
   },
-  heartText: {
-    fontSize: 18,
+  heartButton: {
     marginLeft: 12
   }
 });

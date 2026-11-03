@@ -10,6 +10,15 @@ import { supabase } from "../../../../../utils/supabase";
 export default function HomeScreen() {
   const [message, setMessage] = useState("");
 
+  const todayLabel = new Date()
+    .toLocaleDateString("en-US", {
+      weekday: "long",
+      month: "short",
+      day: "2-digit"
+    })
+    .toUpperCase()
+    .replace(",", " ·");
+
   async function handleLogout() {
     // TODO: Clear the previous message.
     setMessage("");
@@ -42,7 +51,7 @@ export default function HomeScreen() {
 
       {/* Greeting */}
       <View style={styles.helloBox}>
-        <Text style={styles.dateText}>THURSDAY · OCT 01</Text>
+        <Text style={styles.dateText}>{todayLabel}</Text>
 
         <View style={styles.greetingRow}>
           <Text style={styles.helloText}>HI GROUP5!</Text>
@@ -57,7 +66,6 @@ export default function HomeScreen() {
       {/* Streak */}
       <View style={styles.streakBox}>
         <View style={styles.streakInfo}>
-          <Text style={styles.flame}>♨</Text>
           <View>
             <Text style={styles.streakNumber}>8</Text>
             <Text style={styles.streakLabel}>DAY STREAK</Text>
@@ -201,6 +209,7 @@ const styles = StyleSheet.create({
 
   helloBox: {
     backgroundColor: "#154734",
+    borderRadius: 5,
     padding: 20,
     marginBottom: 20
   },
@@ -247,7 +256,7 @@ const styles = StyleSheet.create({
 
   streakBox: {
     backgroundColor: "#E9E8D8",
-    borderRadius: 20,
+    borderRadius: 5,
     padding: 16,
     marginBottom: 28,
     flexDirection: "row",
@@ -257,11 +266,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     width: 135
-  },
-  flame: {
-    color: "#789F90",
-    fontSize: 28,
-    marginRight: 9
   },
   streakNumber: {
     color: "#5B5F61",
@@ -321,6 +325,7 @@ const styles = StyleSheet.create({
   largeBox: {
     height: 156,
     backgroundColor: "#84AA9E",
+    borderRadius: 5,
     padding: 18,
     marginBottom: 20
   },

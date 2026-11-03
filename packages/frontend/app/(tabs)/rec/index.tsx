@@ -1,20 +1,23 @@
-import { SymbolView } from "expo-symbols";
-import regular from "expo-symbols/androidWeights/regular";
-import semiBold from "expo-symbols/androidWeights/semiBold";
+import { useEffect, useState } from "react";
 import {
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
-  View,
-  type StyleProp,
-  type ViewStyle
+  View
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+import Icon, { type SymbolName } from "@/components/ui/Icon";
 import {
-  SafeAreaProvider,
-  SafeAreaView,
-  useSafeAreaInsets
-} from "react-native-safe-area-context";
+  layout,
+  palette,
+  radius,
+  space,
+  text
+} from "@/constants/theme";
+import { supabase } from "../../../../../utils/supabase";
+import { useAuth } from "../../../context/AuthProvider";
 
 /* ------------------------------------------------------------------ *
  * Crowd data
@@ -205,27 +208,181 @@ const CROWD_BY_HOUR: CrowdReading[] = [
   }
 ];
 
-/** The center is open from 6 AM until midnight. */
-const OPENING_HOUR = 6;
-const CLOSING_HOUR = 24;
+type OpenHours = { open: number; close: number };
 
-// FIX!!! Sundays are closed and sundays close at 10
+/** The chart always spans 6 AM until midnight. */
+const CHART_START_HOUR = 6;
+const CHART_END_HOUR = 24;
 
+/**
+ * Opening hours by weekday (0 = Sunday). Weekdays run 6 AM until
+ * midnight, Saturdays 8 AM until 10 PM, and Sundays are closed.
+ */
+const HOURS_BY_DAY: (OpenHours | null)[] = [
+  null,
+  { open: 6, close: 24 },
+  { open: 6, close: 24 },
+  { open: 6, close: 24 },
+  { open: 6, close: 24 },
+  { open: 6, close: 24 },
+  { open: 8, close: 22 }
+];
 
-const crowdWindow = CROWD_BY_HOUR.filter(
-  (reading) =>
-    reading.hour >= OPENING_HOUR && reading.hour < CLOSING_HOUR
-);
+type SpecialHours = {
+  /** First and last day, inclusive, as `YYYY-MM-DD`. */
+  start: string;
+  end: string;
+  hours: OpenHours | null;
+};
 
-function readingForHour(hour: number) {
+/**
+ * Holiday and break hours for the 2026–27 academic year
+ * (Aug 24, 2026 to May 30, 2027). Each range replaces the weekday
+ * hours on those dates; null means closed.
+ */
+const SPECIAL_HOURS: SpecialHours[] = [
+  {
+    start: "2026-06-17",
+    end: "2026-06-17",
+    hours: { open: 7, close: 19 }
+  },
+  {
+    start: "2026-09-20",
+    end: "2026-09-20",
+    hours: { open: 12, close: 22 }
+  },
+  {
+    start: "2026-11-23",
+    end: "2026-11-25",
+    hours: { open: 6, close: 19 }
+  },
+  {
+    start: "2026-11-27",
+    end: "2026-11-27",
+    hours: { open: 12, close: 19 }
+  },
+  {
+    start: "2026-12-12",
+    end: "2026-12-13",
+    hours: { open: 8, close: 19 }
+  },
+  {
+    start: "2026-12-14",
+    end: "2026-12-18",
+    hours: { open: 6, close: 19 }
+  },
+  {
+    start: "2026-12-19",
+    end: "2026-12-20",
+    hours: { open: 8, close: 19 }
+  },
+  {
+    start: "2026-12-21",
+    end: "2026-12-23",
+    hours: { open: 6, close: 19 }
+  },
+  { start: "2026-12-24", end: "2027-01-01", hours: null },
+  {
+    start: "2027-01-02",
+    end: "2027-01-03",
+    hours: { open: 8, close: 19 }
+  },
+  {
+    start: "2027-01-04",
+    end: "2027-01-22",
+    hours: { open: 6, close: 21 }
+  },
+  {
+    start: "2027-03-15",
+    end: "2027-03-19",
+    hours: { open: 6, close: 19 }
+  }
+];
+
+function dateKey(date: Date) {
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
+/**
+ * Holidays the center closes for every year: Independence Day
+ * (Jul 4), Labor Day (first Monday of September) and Thanksgiving
+ * (fourth Thursday of November).
+ */
+function isAnnualHoliday(date: Date) {
+  const month = date.getMonth();
+  const day = date.getDate();
+  const weekday = date.getDay();
+
+  if (month === 6 && day === 4) {
+    return true;
+  }
+  if (month === 8 && weekday === 1 && day <= 7) {
+    return true;
+  }
   return (
-    CROWD_BY_HOUR.find((reading) => reading.hour === hour) ??
-    CROWD_BY_HOUR[0]
+    month === 10 && weekday === 4 && day >= 22 && day <= 28
+  );
+}
+
+function hoursForDate(date: Date) {
+  if (isAnnualHoliday(date)) {
+    return null;
+  }
+  // `YYYY-MM-DD` strings sort the same way as the dates they name.
+  const key = dateKey(date);
+  const special = SPECIAL_HOURS.find(
+    (range) => key >= range.start && key <= range.end
+  );
+  return special ? special.hours : HOURS_BY_DAY[date.getDay()];
+}
+
+function isOpenAt(hours: OpenHours | null, hour: number) {
+  return (
+    hours !== null && hour >= hours.open && hour < hours.close
+  );
+}
+
+/** Hours the center is closed always read as empty. */
+function readingsForDay(hours: OpenHours | null) {
+  return CROWD_BY_HOUR.map((reading) =>
+    isOpenAt(hours, reading.hour)
+      ? reading
+      : {
+          ...reading,
+          occupancy_percentage: 0,
+          status: "Low" as const,
+          estimated_wait_minutes: 0
+        }
+  );
+}
+
+function formatHour(hour: number) {
+  if (hour === 0 || hour === 24) {
+    return "Midnight";
+  }
+  if (hour === 12) {
+    return "Noon";
+  }
+  return hour < 12 ? `${hour} AM` : `${hour - 12} PM`;
+}
+
+function readingForHour(
+  readings: CrowdReading[],
+  hour: number
+) {
+  return (
+    readings.find((reading) => reading.hour === hour) ??
+    readings[0]
   );
 }
 
 /** The quietest hour of the day is the best time to visit. */
 function quietestReading(readings: CrowdReading[]) {
+  if (readings.length === 0) {
+    return null;
+  }
   return readings.reduce((quietest, reading) =>
     reading.occupancy_percentage < quietest.occupancy_percentage
       ? reading
@@ -233,43 +390,15 @@ function quietestReading(readings: CrowdReading[]) {
   );
 }
 
+/** Returns null when every hour is empty, e.g. on a closed day. */
 function busiestReading(readings: CrowdReading[]) {
-  return readings.reduce((busiest, reading) =>
-    reading.occupancy_percentage > busiest.occupancy_percentage
+  const busiest = readings.reduce((max, reading) =>
+    reading.occupancy_percentage > max.occupancy_percentage
       ? reading
-      : busiest
+      : max
   );
+  return busiest.occupancy_percentage > 0 ? busiest : null;
 }
-
-/* ------------------------------------------------------------------ *
- * Design tokens
- *
- * Single source of truth for the PolyFit brand. The palette is the
- * one already established on this screen: forest green, warm cream,
- * burnished gold and mint. `#789F90` was replaced by `#4A7361` and
- * gold is never used for body text, because both failed WCAG AA
- * against the cream canvas.
- * ------------------------------------------------------------------ */
-
-const palette = {
-  forest: "#154734",
-  sage: "#4A7361",
-  mint: "#87CDC2",
-  gold: "#BD8013",
-  goldText: "#8A5E08",
-  goldLight: "#E8B54A",
-  goldSoft: "#F6E8C8",
-  canvas: "#F8F6F0",
-  surface: "#FFFFFF",
-  surfaceMuted: "#EEF3EF",
-  surfaceSage: "#E6EFEA",
-  ink: "#154734",
-  inkMuted: "#5A6570",
-  onDark: "#FFFFFF",
-  onDarkMuted: "#C9DDD5",
-  onDarkLine: "rgba(255, 255, 255, 0.18)",
-  chartBar: "#5E8F7B"
-} as const;
 
 /**
  * Crowd status needs a tone for light surfaces and one for the dark
@@ -285,74 +414,36 @@ const STATUS_TONE: Record<
   High: { onLight: "#A63A24", onDark: "#F5AEA4" }
 };
 
-const space = {
-  xs: 4,
-  sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 20,
-  xxl: 24
-} as const;
-
-const radius = {
-  sm: 10,
-  md: 14,
-  lg: 20,
-  pill: 999
-} as const;
-
-const text = {
-  display: { fontSize: 26, lineHeight: 32, fontWeight: "700" },
-  metric: { fontSize: 40, lineHeight: 46, fontWeight: "700" },
-  title: { fontSize: 19, lineHeight: 25, fontWeight: "700" },
-  heading: { fontSize: 17, lineHeight: 23, fontWeight: "700" },
-  body: { fontSize: 15, lineHeight: 21, fontWeight: "400" },
-  bodyStrong: {
-    fontSize: 15,
-    lineHeight: 21,
-    fontWeight: "600"
-  },
-  caption: { fontSize: 13, lineHeight: 18, fontWeight: "400" },
-  label: { fontSize: 12, lineHeight: 16, fontWeight: "600" },
-  eyebrow: {
-    fontSize: 11,
-    lineHeight: 14,
-    fontWeight: "700",
-    letterSpacing: 0.8,
-    textTransform: "uppercase"
-  }
-} as const;
-
 /* ------------------------------------------------------------------ *
  * Helpers
  * ------------------------------------------------------------------ */
 
 const WEEKDAYS = [
-  "SUN",
-  "MON",
-  "TUE",
-  "WED",
-  "THU",
-  "FRI",
-  "SAT"
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday"
 ];
 const MONTHS = [
-  "JAN",
-  "FEB",
-  "MAR",
-  "APR",
-  "MAY",
-  "JUN",
-  "JUL",
-  "AUG",
-  "SEP",
-  "OCT",
-  "NOV",
-  "DEC"
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December"
 ];
 
 function formatDate(date: Date) {
-  return `${WEEKDAYS[date.getDay()]} · ${MONTHS[date.getMonth()]} ${date.getDate()}`;
+  return `${WEEKDAYS[date.getDay()]}, ${MONTHS[date.getMonth()]} ${date.getDate()}`;
 }
 
 function formatGreeting(date: Date) {
@@ -374,43 +465,6 @@ function formatWait(minutes: number) {
 /* ------------------------------------------------------------------ *
  * UI primitives
  * ------------------------------------------------------------------ */
-
-type SymbolName = Parameters<typeof SymbolView>[0]["name"];
-
-type IconProps = {
-  name: SymbolName;
-  size?: number;
-  color?: string;
-  weight?: "regular" | "semibold";
-  style?: StyleProp<ViewStyle>;
-};
-
-/**
- * Native SF Symbols on iOS, Material Symbols on Android and web.
- * Icons are decorative: the surrounding control carries the label.
- */
-function Icon({
-  name,
-  size = 20,
-  color = palette.ink,
-  weight = "semibold",
-  style
-}: IconProps) {
-  return (
-    <SymbolView
-      name={name}
-      size={size}
-      tintColor={color}
-      weight={{
-        ios: weight,
-        android: weight === "semibold" ? semiBold : regular
-      }}
-      style={style}
-      accessible={false}
-      importantForAccessibility="no"
-    />
-  );
-}
 
 type StatTileProps = {
   icon: SymbolName;
@@ -457,13 +511,13 @@ type CrowdChartProps = {
 
 function barColor(
   reading: CrowdReading,
-  peakHour: number,
+  peakHour: number | null,
   currentHour: number
 ) {
   if (reading.hour === currentHour) {
     return palette.goldText;
   }
-  if (reading.hour === peakHour) {
+  if (peakHour !== null && reading.hour === peakHour) {
     return palette.forest;
   }
   return palette.chartBar;
@@ -502,15 +556,20 @@ function axisLabelIndexes(
 function CrowdChart({ data, currentHour }: CrowdChartProps) {
   const peak = busiestReading(data);
   const labelIndexes = axisLabelIndexes(data, currentHour);
+  // The bars are purely visual, so screen readers get a summary.
+  const summary = peak
+    ? `Hourly occupancy chart. Busiest at ${peak.time_label}, ${peak.occupancy_percentage} percent full.`
+    : "Hourly occupancy chart. Closed today.";
 
   return (
-    <View style={styles.chart}>
+    <View
+      style={styles.chart}
+      accessible
+      accessibilityRole="image"
+      accessibilityLabel={summary}>
       <View style={styles.chartMeta}>
         <Text style={styles.chartMetaLabel}>
           Hourly occupancy
-        </Text>
-        <Text style={styles.chartMetaValue}>
-          {`Peak ${peak.time_label} · ${peak.occupancy_percentage}%`}
         </Text>
       </View>
 
@@ -528,7 +587,7 @@ function CrowdChart({ data, currentHour }: CrowdChartProps) {
                   ),
                   backgroundColor: barColor(
                     reading,
-                    peak.hour,
+                    peak?.hour ?? null,
                     currentHour
                   )
                 }
@@ -567,29 +626,80 @@ function CrowdChart({ data, currentHour }: CrowdChartProps) {
  * ------------------------------------------------------------------ */
 
 export default function RecCenterScreen() {
-  return (
-    <SafeAreaProvider>
-      <RecCenterContent />
-    </SafeAreaProvider>
-  );
-}
-
-function RecCenterContent() {
+  // Insets come from the provider Expo Router mounts at the root.
   const insets = useSafeAreaInsets();
   const now = new Date();
+  const { session } = useAuth();
+  const userId = session?.user.id;
+  const [loadedName, setLoadedName] = useState<{
+    userId: string;
+    firstName: string | null;
+  } | null>(null);
+  // Ignore a name loaded for a previous user.
+  const firstName =
+    loadedName !== null && loadedName.userId === userId
+      ? loadedName.firstName
+      : null;
+
+  // Load the first name saved during onboarding for the greeting.
+  useEffect(() => {
+    let cancelled = false;
+
+    if (userId == null) {
+      return;
+    }
+
+    async function loadFirstName(id: string) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("first_name")
+        .eq("id", id)
+        .single();
+
+      if (!cancelled) {
+        setLoadedName({
+          userId: id,
+          firstName: profile?.first_name?.trim() || null
+        });
+      }
+    }
+    void loadFirstName(userId);
+    return () => {
+      cancelled = true;
+    };
+  }, [userId]);
 
   const handleRecIdPress = () => {
     // TODO: implement rec ID scan-in
   };
 
-  const current = readingForHour(now.getHours());
-  const best = quietestReading(crowdWindow);
+  const hoursToday = hoursForDate(now);
+  const isOpenNow = isOpenAt(hoursToday, now.getHours());
+  const readingsToday = readingsForDay(hoursToday);
+  const chartWindow = readingsToday.filter(
+    (reading) =>
+      reading.hour >= CHART_START_HOUR &&
+      reading.hour < CHART_END_HOUR
+  );
+
+  const current = readingForHour(readingsToday, now.getHours());
+  const best = quietestReading(
+    readingsToday.filter((reading) =>
+      isOpenAt(hoursToday, reading.hour)
+    )
+  );
   const statusTone = STATUS_TONE[current.status];
 
   return (
-    <SafeAreaView
-      style={styles.screen}
-      edges={["top", "left", "right"]}>
+    <View
+      style={[
+        styles.screen,
+        {
+          paddingTop: Math.max(insets.top, layout.minTopInset),
+          paddingLeft: insets.left,
+          paddingRight: insets.right
+        }
+      ]}>
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={[
@@ -603,21 +713,11 @@ function RecCenterContent() {
             <Text style={styles.headerEyebrow}>
               {formatDate(now)}
             </Text>
-            <Text style={styles.greeting}>
-              {formatGreeting(now)}
+            <Text style={styles.greeting} numberOfLines={1}>
+              {firstName
+                ? `${formatGreeting(now)}, ${firstName}`
+                : formatGreeting(now)}
             </Text>
-          </View>
-          <View style={styles.avatar}>
-            <Icon
-              name={{
-                ios: "person",
-                android: "person",
-                web: "person"
-              }}
-              size={32}
-              color={palette.onDark}
-              weight="regular"
-            />
           </View>
         </View>
 
@@ -648,15 +748,6 @@ function RecCenterContent() {
               Tap to scan in
             </Text>
           </View>
-          <Icon
-            name={{
-              ios: "chevron.right",
-              android: "chevron_right",
-              web: "chevron_right"
-            }}
-            size={18}
-            color={palette.inkMuted}
-          />
         </Pressable>
 
         {/* Live crowd card */}
@@ -665,51 +756,61 @@ function RecCenterContent() {
             <Text style={styles.heroEyebrow}>
               Recreation Center
             </Text>
-            <View style={styles.liveBadge}>
-              <View style={styles.liveDot} />
-              <Text
-                style={styles.liveText}
-                accessibilityLabel="Live">
-                LIVE
-              </Text>
-            </View>
+            {isOpenNow ? (
+              <View style={styles.liveBadge}>
+                <View style={styles.liveDot} />
+                <Text
+                  style={styles.liveText}
+                  accessibilityLabel="Live">
+                  LIVE
+                </Text>
+              </View>
+            ) : null}
           </View>
 
           <Text style={styles.heroLabel}>Crowd level</Text>
 
-          <View style={styles.heroValueRow}>
-            <Text
-              style={styles.heroValue}
-              accessibilityLabel={`${current.occupancy_percentage} percent full, ${current.status}`}>
-              {`${current.occupancy_percentage}%`}
-            </Text>
-            <View style={styles.statusChip}>
-              <View
-                style={[
-                  styles.statusDot,
-                  { backgroundColor: statusTone.onDark }
-                ]}
-              />
+          {isOpenNow ? (
+            <View style={styles.heroValueRow}>
               <Text
-                style={[
-                  styles.statusLabel,
-                  { color: statusTone.onDark }
-                ]}>
-                {current.status}
+                style={styles.heroValue}
+                accessibilityLabel={`${current.occupancy_percentage} percent full, ${current.status}`}>
+                {`${current.occupancy_percentage}%`}
               </Text>
+              <View style={styles.statusChip}>
+                <View
+                  style={[
+                    styles.statusDot,
+                    { backgroundColor: statusTone.onDark }
+                  ]}
+                />
+                <Text
+                  style={[
+                    styles.statusLabel,
+                    { color: statusTone.onDark }
+                  ]}>
+                  {current.status}
+                </Text>
+              </View>
             </View>
-          </View>
+          ) : (
+            <View style={styles.heroValueRow}>
+              <Text style={styles.heroValue}>Closed</Text>
+            </View>
+          )}
 
           <View style={styles.capacityTrack}>
-            <View
-              style={[
-                styles.capacityFill,
-                {
-                  width: `${Math.max(2, current.occupancy_percentage)}%`,
-                  backgroundColor: statusTone.onDark
-                }
-              ]}
-            />
+            {isOpenNow ? (
+              <View
+                style={[
+                  styles.capacityFill,
+                  {
+                    width: `${Math.max(2, current.occupancy_percentage)}%`,
+                    backgroundColor: statusTone.onDark
+                  }
+                ]}
+              />
+            ) : null}
           </View>
 
           <View style={styles.heroDivider} />
@@ -719,7 +820,7 @@ function RecCenterContent() {
               Best time to go
             </Text>
             <Text style={styles.heroFooterValue}>
-              {best.time_label}
+              {best ? best.time_label : "Closed today"}
             </Text>
           </View>
         </View>
@@ -730,7 +831,7 @@ function RecCenterContent() {
             {"Today's activity"}
           </Text>
           <CrowdChart
-            data={crowdWindow}
+            data={chartWindow}
             currentHour={now.getHours()}
           />
         </View>
@@ -745,8 +846,12 @@ function RecCenterContent() {
             }}
             iconBackground={palette.surfaceSage}
             iconColor={palette.sage}
-            label="Closes at"
-            value="Midnight"
+            label={hoursToday ? "Closes at" : "Today"}
+            value={
+              hoursToday
+                ? formatHour(hoursToday.close)
+                : "Closed"
+            }
           />
           <StatTile
             icon={{
@@ -757,11 +862,22 @@ function RecCenterContent() {
             iconBackground={palette.goldSoft}
             iconColor={palette.goldText}
             label="Current wait"
-            value={formatWait(current.estimated_wait_minutes)}
+            value={
+              isOpenNow
+                ? formatWait(current.estimated_wait_minutes)
+                : "Closed"
+            }
           />
         </View>
+
+        {/* Remove once the real crowd endpoint is connected. */}
+        <Text style={styles.mockNote}>
+          Crowd levels shown are sample data based on typical
+          gym traffic found online, not readings from our rec
+          center. Actual crowds may be busier or quieter.
+        </Text>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -778,8 +894,8 @@ const styles = StyleSheet.create({
     flex: 1
   },
   content: {
-    paddingHorizontal: space.xl,
-    paddingTop: 70
+    paddingHorizontal: layout.screenGutter,
+    paddingTop: layout.screenTop
   },
 
   // Header
@@ -793,23 +909,16 @@ const styles = StyleSheet.create({
     flex: 1,
     minWidth: 0
   },
+  // The date sits higher; the greeting's larger margin keeps it in place.
   headerEyebrow: {
     ...text.eyebrow,
-    color: palette.sage
+    color: palette.sage,
+    marginTop: -space.lg
   },
   greeting: {
     ...text.display,
     color: palette.ink,
-    marginTop: space.xs
-  },
-  avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 20,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: palette.forest,
-    marginLeft: space.md
+    marginTop: space.xs + space.lg
   },
 
   // My Rec ID
@@ -823,7 +932,7 @@ const styles = StyleSheet.create({
     marginBottom: space.lg
   },
   pressed: {
-    opacity: 0.75
+    opacity: layout.pressedOpacity
   },
   recIdIcon: {
     width: 44,
@@ -975,10 +1084,6 @@ const styles = StyleSheet.create({
     ...text.caption,
     color: palette.inkMuted
   },
-  chartMetaValue: {
-    ...text.label,
-    color: palette.ink
-  },
   chartPlot: {
     flexDirection: "row",
     alignItems: "flex-end",
@@ -1039,5 +1144,13 @@ const styles = StyleSheet.create({
     ...text.bodyStrong,
     color: palette.ink,
     marginTop: 2
+  },
+
+  // Sample data note
+  mockNote: {
+    ...text.caption,
+    color: palette.inkMuted,
+    textAlign: "center",
+    marginTop: space.xxl
   }
 });
