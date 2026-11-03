@@ -43,9 +43,9 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="home"
         options={{
-          title: "Home",
+          title: "home",
           tabBarIcon: ({ focused }) => (
             <TabIcon
               focused={focused}
@@ -56,13 +56,13 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="workouts"
+        name="workout"
         options={{
-          title: "Workouts",
+          title: "Workout",
           tabBarIcon: ({ focused }) => (
             <TabIcon
               focused={focused}
-              label="Workouts"
+              label="Workout"
               renderIcon={(c) => (
                 <MaterialCommunityIcons name="dumbbell" size={28} color={c} />
               )}
@@ -71,9 +71,9 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="rec-center"
+        name="rec"
         options={{
-          title: "Rec Center",
+          title: "rec",
           tabBarIcon: ({ focused }) => (
             <TabIcon
               focused={focused}

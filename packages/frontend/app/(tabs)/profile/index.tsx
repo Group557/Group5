@@ -596,7 +596,7 @@ const styles = StyleSheet.create({
 
   // Pop-up sheet
   backdrop: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: COLORS.backdrop,
   },
   sheetWrapper: {

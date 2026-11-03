@@ -9,7 +9,7 @@ import {
   View
 } from "react-native";
 
-import { supabase } from "../../../../utils/supabase";
+import { supabase } from "../../../../../utils/supabase";
 
 type Exercise = {
   id: number;
@@ -46,11 +46,11 @@ export default function WorkoutHomePage() {
   );
 
   const handleAddExercise = () => {
-    router.push("/add-exercise");
+    router.push("/workout/add-exercise");
   };
 
   const handleCreateWorkout = () => {
-    router.push("/add-workout");
+    router.push("/workout/add-workout");
   };
 
   return (

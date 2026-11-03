@@ -31,7 +31,7 @@ export default function HomeScreen() {
       return;
     }
     if (profile?.onboarded) {
-      router.replace("/homepage");
+      router.replace("/home");
     } else {
       router.replace("/(onboarding)/onboard");
     }

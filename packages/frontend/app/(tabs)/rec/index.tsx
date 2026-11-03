@@ -16,8 +16,8 @@ import {
   space,
   text
 } from "@/constants/theme";
-import { supabase } from "../../../../utils/supabase";
-import { useAuth } from "../../context/AuthProvider";
+import { supabase } from "../../../../../utils/supabase";
+import { useAuth } from "../../../context/AuthProvider";
 
 /* ------------------------------------------------------------------ *
  * Crowd data

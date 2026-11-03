@@ -14,7 +14,7 @@ import {
   View
 } from "react-native";
 
-import { supabase } from "../../../../utils/supabase";
+import { supabase } from "../../../../../utils/supabase";
 
 /** Forest green from the app theme, outlined until favorited. */
 const HEART_COLOR = "#154734";
@@ -164,7 +164,7 @@ export default function AddWorkoutScreen() {
     if (router.canGoBack()) {
       router.back();
     } else {
-      router.replace("/workouthome");
+      router.replace("/workout");
     }
   };
 
@@ -434,11 +434,7 @@ export default function AddWorkoutScreen() {
                     }
                   }}>
                   <Ionicons
-                    name={
-                      filter === "favorites"
-                        ? "heart"
-                        : "heart-outline"
-                    }
+                    name="heart"
                     size={14}
                     color={
                       filter === "favorites"
@@ -452,7 +448,7 @@ export default function AddWorkoutScreen() {
                       filter === "favorites" &&
                         styles.filterButtonTextActive
                     ]}>
-                    {filter === "favorites" ? "Favorites" : "All"}
+                    Favorites
                   </Text>
                 </Pressable>
 
@@ -564,7 +560,7 @@ export default function AddWorkoutScreen() {
                   style={styles.addExerciseLink}
                   onPress={() => {
                     setLibraryOpen(false);
-                    router.push("/add-exercise");
+                    router.push("/workout/add-exercise");
                   }}>
                   <Text style={styles.addExerciseLinkText}>
                     + Add an Exercise

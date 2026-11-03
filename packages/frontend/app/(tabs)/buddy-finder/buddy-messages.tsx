@@ -183,7 +183,7 @@ export default function BuddyMessagesScreen() {
             chat={item}
             onPress={() =>
               router.push({
-                pathname: "/buddy-chat",
+                pathname: "/buddy-finder/buddy-chat",
                 params: { id: item.id }
               })
             }

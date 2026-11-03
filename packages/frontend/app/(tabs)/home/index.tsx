@@ -6,7 +6,7 @@ import {
   Text,
   View
 } from "react-native";
-import { supabase } from "../../../../utils/supabase";
+import { supabase } from "../../../../../utils/supabase";
 export default function HomeScreen() {
   const [message, setMessage] = useState("");
 

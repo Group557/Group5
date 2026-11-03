@@ -246,7 +246,7 @@ export default function BuddyChatScreen() {
                 {chat.subtitle}
               </Text>
               <Pressable
-                onPress={() => router.push("/buddy-profile")}
+                onPress={() => router.push("/buddy-finder/buddy-profile")}
                 style={({ pressed }) => [
                   styles.introButton,
                   pressed && styles.pressed

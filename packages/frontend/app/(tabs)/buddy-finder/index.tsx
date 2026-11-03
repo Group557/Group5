@@ -61,11 +61,11 @@ export default function BuddyFinderScreen() {
   const [canUndo, setCanUndo] = useState(false);
 
   const handleFiltersPress = () => {
-    router.push("/buddy-filters");
+    router.push("/");
   };
 
   const handleMyProfilePress = () => {
-    router.push("/buddy-my-profile");
+    router.push("/buddy-finder/buddy-my-profile");
   };
 
   const handleUndoPress = () => {
@@ -79,16 +79,16 @@ export default function BuddyFinderScreen() {
   };
 
   const handleViewProfilePress = () => {
-    router.push("/buddy-profile");
+    router.push("/buddy-finder/buddy-profile");
   };
 
   const handleMessagePress = () => {
     // TODO: pass this buddy's id once profiles come from the backend
-    router.push("/buddy-chat");
+    router.push("/buddy-finder/buddy-chat");
   };
 
   const handleInboxPress = () => {
-    router.push("/buddy-messages");
+    router.push("/buddy-finder/buddy-messages");
   };
 
   return (
