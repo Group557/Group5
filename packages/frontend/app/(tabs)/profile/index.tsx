@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-import { Link, Stack } from "expo-router";
+import { Stack, router } from "expo-router";
 import { useState } from "react";
 import {
   Alert,
@@ -15,6 +15,7 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { supabase } from "../../../../../utils/supabase";
 
 const COLORS = {
   page: "#F8F6F0",
@@ -176,6 +177,19 @@ export default function Profile() {
   const isValid = Object.keys(errors).length === 0;
   const hasChanges = JSON.stringify(form) !== JSON.stringify(saved);
   const canSave = hasChanges && isValid;
+  const [signingOut, setSigningOut] = useState(false);
+
+  async function handleSignOut() {
+    setSigningOut(true);
+    const { error } = await supabase.auth.signOut();
+    setSigningOut(false);
+
+    if (error) {
+      Alert.alert("Sign out failed", error.message);
+      return;
+    }
+    router.replace("/login");
+}
 
   async function pickPhoto() {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -359,31 +373,21 @@ export default function Profile() {
           </Pressable>
         </View>
 
-        {/* Settings row */}
-        <Link href="/profile/settings" asChild>
-          <Pressable
-            style={({ pressed }) => [
-              styles.formCard,
-              styles.cardSpacing,
-              styles.settingsRow,
-              pressed && styles.pressed,
-            ]}
-            accessibilityRole="button"
-            accessibilityLabel="Open settings"
-          >
-            <View style={styles.settingsLeft}>
-            <View style={styles.settingsIcon}>
-              <Ionicons name="settings-outline" size={20} color={COLORS.green} />
-            </View>
-            <View style={styles.settingsTextBlock}>
-              <View style={styles.settingsTitleRow}>
-                <Text style={styles.settingsTitle}>Settings</Text>
-                <Ionicons name="chevron-forward" size={20} color={COLORS.sage} />
-              </View>
-              </View>
-          </View>
-          </Pressable>
-        </Link>
+        {/* Sign out button */}
+        <Pressable
+          style={({ pressed }) => [
+            styles.signOutButton,
+            (pressed || signingOut) && styles.pressed,
+          ]}
+          onPress={handleSignOut}
+          disabled={signingOut}
+          accessibilityRole="button"
+        >
+          <Ionicons name="log-out-outline" size={18} color={COLORS.error} />
+          <Text style={styles.signOutText}>
+            {signingOut ? "Signing out..." : "Sign out"}
+          </Text>
+        </Pressable>
       </ScrollView>
 
       {/* Pop-up pickers */}
@@ -658,44 +662,22 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
 
-  // Settings row
-  settingsRow: {
+  // Sign out button
+  signOutButton: {
     flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  settingsIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 11,
-    backgroundColor: COLORS.inputBg,
-    borderWidth: 1,
-    borderColor: COLORS.inputBorder,
     alignItems: "center",
     justifyContent: "center",
+    gap: 8,
+    backgroundColor: COLORS.card,
+    borderWidth: 1,
+    borderColor: COLORS.inputBorder,
+    borderRadius: 14,
+    paddingVertical: 16,
+    marginTop: 16,
   },
-  settingsTitle: {
-    color: COLORS.green,
+  signOutText: {
+    color: COLORS.error,
     fontSize: 16,
     fontWeight: "800",
-  },
-  settingsSubtitle: {
-    color: COLORS.gray,
-    fontSize: 13,
-    marginTop: 2,
-  },
-  settingsLeft: {
-    flex: 1,              // fill the card's width
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-  settingsTextBlock: {
-    flex: 1,              // take all space next to the icon
-  },
-  settingsTitleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between", // word left, chevron right
   },
 });
