@@ -48,6 +48,7 @@ function AppNavigation() {
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name = "index" />
       <Stack.Protected guard={session === null}>
         <Stack.Screen name="(login-registration)" />
       </Stack.Protected>
@@ -58,7 +59,7 @@ function AppNavigation() {
       </Stack.Protected>
 
       <Stack.Protected
-        guard={session !== null && onboarded === false}>
+        guard={session !== null && onboarded === true}>
         <Stack.Screen name="(tabs)" />
       </Stack.Protected>
     </Stack>
