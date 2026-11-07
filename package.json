@@ -10,7 +10,7 @@
   },
   "scripts": {
     "format": "prettier --write './**/*.{js,jsx,ts,tsx,css,md,json}' --config ./.prettierrc",
-    "start": "dotenv -e .env.local -- npm run start --workspace=csc3100-frontend -- --go --tunnel",
+    "start": "dotenv -e .env.local -- npm run start --workspace=csc3100-frontend -- --go --localhost",
     "lint": "npm run lint --workspaces --if-present"
   },
   "devDependencies": {

@@ -18,6 +18,7 @@ export default function HomeScreen() {
   const [message, setMessage] = useState("");
 
   //route user to either onboarding or dashboard depending on their onboarded status
+  /*Send the token from FE to BE on authenticated calls (22-26)*/
   async function routeUser(userID: string) {
     const { data: profile, error } = await supabase
       .from("profiles")
@@ -25,6 +26,7 @@ export default function HomeScreen() {
       .eq("id", userID)
       .single();
 
+    /*BE handles successful and unauthorized requests*/
     if (error) {
       console.error(error.message);
       setMessage(error.message);
@@ -39,7 +41,7 @@ export default function HomeScreen() {
   //registering user
   async function handleRegister() {
     setMessage("");
-
+    /*Store the token on the client side. Supabase stores tokens for us */
     try {
       const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
@@ -62,7 +64,7 @@ export default function HomeScreen() {
       setMessage("Unable to Register");
     }
   }
-
+  /*Sign-in endpoint with hashed password(Supabase hashes them for us automatically), then token generation*/
   async function handleSignIn() {
     setMessage("");
 
