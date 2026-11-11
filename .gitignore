@@ -41,3 +41,6 @@ example
 # generated native folders
 /ios
 /android
+
+#downloaded data from https://github.com/yuhonas/free-exercise-db
+data

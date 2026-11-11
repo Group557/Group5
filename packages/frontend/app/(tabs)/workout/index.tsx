@@ -1,54 +1,7 @@
-import { router, useFocusEffect } from "expo-router";
-import { useCallback, useState } from "react";
-import {
-  ActivityIndicator,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View
-} from "react-native";
-
-import { supabase } from "../../../../../utils/supabase";
-
-type Exercise = {
-  id: number;
-  exercise_name: string;
-  exercise_category: string | null;
-};
+import { router } from "expo-router";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 export default function WorkoutHomePage() {
-  const [exercises, setExercises] = useState<Exercise[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const loadExercises = useCallback(async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("exercises")
-      .select("id, exercise_name, exercise_category")
-      .eq("is_favorite", true)
-      .order("exercise_name", { ascending: true });
-
-    if (error) {
-      console.log("Could not load exercises:", error.message);
-    } else {
-      setExercises(data ?? []);
-    }
-    setLoading(false);
-  }, []);
-
-  // Reload every time this screen comes into focus so newly
-  // added exercises appear right away.
-  useFocusEffect(
-    useCallback(() => {
-      void loadExercises();
-    }, [loadExercises])
-  );
-
-  const handleAddExercise = () => {
-    router.push("/workout/add-exercise");
-  };
-
   const handleCreateWorkout = () => {
     router.push("/workout/add-workout");
   };
@@ -89,73 +42,11 @@ export default function WorkoutHomePage() {
             Create Workout
           </Text>
         </Pressable>
-
-        <Pressable
-          style={styles.secondaryButton}
-          onPress={handleAddExercise}>
-          <Text style={styles.secondaryButtonPlus}>+</Text>
-          <Text style={styles.secondaryButtonText}>
-            Add Exercise
-          </Text>
-        </Pressable>
       </View>
-
-      {/* Exercises section */}
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>
-          Favorite Exercises
-        </Text>
-        <Text style={styles.sectionCount}>
-          {exercises.length} favorited
-        </Text>
-      </View>
-
-      {loading ? (
-        <View style={styles.emptyCard}>
-          <ActivityIndicator />
-        </View>
-      ) : exercises.length === 0 ? (
-        <View style={styles.emptyCard}>
-          <View style={styles.emptyIconBox}>
-            <Text style={styles.emptyIcon}>+</Text>
-          </View>
-
-          <Text style={styles.emptyTitle}>
-            No exercises yet
-          </Text>
-          <Text style={styles.emptyText}>
-            Add exercises like Squats, Bench Press, or Running.
-            You can choose them later when creating a workout.
-          </Text>
-        </View>
-      ) : (
-        <View style={styles.exerciseList}>
-          {exercises.map((exercise) => (
-            <View key={exercise.id} style={styles.exerciseCard}>
-              <View style={styles.exerciseIconBox}>
-                <Text style={styles.exerciseIcon}>✣</Text>
-              </View>
-
-              <View style={styles.exerciseText}>
-                <Text style={styles.exerciseName}>
-                  {exercise.exercise_name}
-                </Text>
-                {exercise.exercise_category ? (
-                  <Text style={styles.exerciseCategory}>
-                    {exercise.exercise_category}
-                  </Text>
-                ) : null}
-              </View>
-            </View>
-          ))}
-        </View>
-      )}
 
       {/* Workouts section */}
       <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>
-          Workouts
-        </Text>
+        <Text style={styles.sectionTitle}>Workouts</Text>
         <Text style={styles.sectionCount}>0 workouts</Text>
       </View>
 
@@ -347,44 +238,5 @@ const styles = StyleSheet.create({
     textAlign: "center",
     lineHeight: 19,
     marginTop: 6
-  },
-  exerciseList: {
-    gap: 10,
-    marginBottom: 27
-  },
-  exerciseCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    padding: 16,
-    flexDirection: "row",
-    alignItems: "center"
-  },
-  exerciseIconBox: {
-    width: 40,
-    height: 40,
-    borderRadius: 11,
-    backgroundColor: "#E6EFEA",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 13
-  },
-  exerciseIcon: {
-    color: "#154734",
-    fontSize: 19,
-    fontWeight: "700"
-  },
-  exerciseText: {
-    flex: 1
-  },
-  exerciseName: {
-    color: "#154734",
-    fontSize: 16,
-    fontWeight: "800"
-  },
-  exerciseCategory: {
-    color: "#789F90",
-    fontSize: 13,
-    fontWeight: "700",
-    marginTop: 2
   }
 });
