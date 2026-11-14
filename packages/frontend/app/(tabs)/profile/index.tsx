@@ -1,7 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
+import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
-import { Stack, router } from "expo-router";
-import { useState } from "react";
+import { Stack, router, useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
+import { useAuth } from "../../../context/AuthProvider";
+
 import {
   Alert,
   Image,
@@ -43,15 +46,15 @@ type ProfileForm = {
   heightInches: string;
 };
 
-const INITIAL_PROFILE: ProfileForm = {
+const EMPTY_PROFILE: ProfileForm = {
   photoUri: null,
-  name: "John Smith",
-  username: "johnsmith",
-  email: "johnsmith@calpoly.edu",
-  gender: "Male",
-  pronouns: "He/him",
-  heightFeet: "5",
-  heightInches: "11",
+  name: "",
+  username: "",
+  email: "",
+  gender: "",
+  pronouns: "",
+  heightFeet: "",
+  heightInches: "",
 };
 
 type PickerField = "gender";
@@ -59,7 +62,11 @@ type PickerField = "gender";
 function Avatar({ size, uri }: { size: number; uri: string | null }) {
   const shape = { width: size, height: size, borderRadius: size / 2 };
   if (uri) {
-    return <Image source={{ uri }} style={[styles.avatar, shape]} />;
+    return <Image
+    source={{ uri }}
+    style={[styles.avatar, shape]}
+    resizeMode="cover"
+  />;
   }
   return (
     <View style={[styles.avatar, shape]}>
@@ -163,9 +170,24 @@ function getErrors(form: ProfileForm) {
   return errors;
 }
 
+function cmToFeetInches(cm: number | null) {
+  if (!cm) return { feet: "", inches: "" };
+  const totalInches = Math.round(cm / 2.54);
+  return {
+    feet: String(Math.floor(totalInches / 12)),
+    inches: String(totalInches % 12),
+  };
+}
+
+function feetInchesToCm(feet: string, inches: string) {
+  if (!feet && !inches) return null;
+  const totalInches = Number(feet || 0) * 12 + Number(inches || 0);
+  return Math.round(totalInches * 2.54);
+}
+
 export default function Profile() {
-  const [form, setForm] = useState<ProfileForm>(INITIAL_PROFILE);
-  const [saved, setSaved] = useState<ProfileForm>(INITIAL_PROFILE);
+  const [form, setForm] = useState<ProfileForm>(EMPTY_PROFILE);
+  const [saved, setSaved] = useState<ProfileForm>(EMPTY_PROFILE);
   const [openPicker, setOpenPicker] = useState<PickerField | null>(null);
 
   // Update one field without touching the others.
@@ -178,6 +200,44 @@ export default function Profile() {
   const hasChanges = JSON.stringify(form) !== JSON.stringify(saved);
   const canSave = hasChanges && isValid;
   const [signingOut, setSigningOut] = useState(false);
+  const { session } = useAuth();
+const [loadingProfile, setLoadingProfile] = useState(true);
+
+const loadProfile = useCallback(async () => {
+  if (!session) return;
+  setLoadingProfile(true);
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("first_name, last_name, username, picture_url, gender, height_cm")
+    .eq("id", session.user.id)
+    .single();
+
+  if (error) {
+    Alert.alert("Couldn't load profile", error.message);
+  } else {
+    const { feet, inches } = cmToFeetInches(data.height_cm);
+    const loaded: ProfileForm = {
+      photoUri: data.picture_url,
+      name: [data.first_name, data.last_name].filter(Boolean).join(" "),
+      username: data.username ?? "",
+      email: session.user.email ?? "",
+      gender: data.gender ?? "",
+      pronouns: "",
+      heightFeet: feet,
+      heightInches: inches,
+    };
+    setForm(loaded);
+    setSaved(loaded);
+  }
+  setLoadingProfile(false);
+}, [session]);
+
+useFocusEffect(
+  useCallback(() => {
+    void loadProfile();
+  }, [loadProfile])
+);
 
   async function handleSignOut() {
     setSigningOut(true);
@@ -191,27 +251,91 @@ export default function Profile() {
     router.replace("/login");
 }
 
-  async function pickPhoto() {
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permission.granted) {
-      Alert.alert("Permission needed", "Allow photo access to change your profile photo.");
-      return;
-    }
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.7,
-    });
-    if (!result.canceled) {
-      updateField("photoUri", result.assets[0].uri);
-    }
+async function pickPhoto() {
+  const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  if (!permission.granted) {
+    Alert.alert("Permission needed", "Allow photo access to change your profile photo.");
+    return;
   }
 
-  function handleSave() {
-    // TODO: send `form` to your backend here (e.g. update the user's profile).
-    // Upload the photo from form.photoUri, and convert heights with Number(...).
-    setSaved(form);
+  const result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ["images"],
+    quality: 1,
+  });
+  if (result.canceled) return;
+  
+  const { uri, width } = result.assets[0];
+  
+  const resized = await ImageManipulator.manipulateAsync(
+    uri,
+    width > 800 ? [{ resize: { width: 800 } }] : [],
+    { compress: 0.8, format: ImageManipulator.SaveFormat.JPEG }
+  );
+  
+  updateField("photoUri", resized.uri);
+}
+
+  async function uploadAvatar(localUri: string, userId: string) {
+    const response = await fetch(localUri);
+    const blob = await response.blob();
+    const contentType = blob.type || "image/jpeg";
+    const extension = contentType.split("/")[1] ?? "jpg";
+    const path = `${userId}/avatar-${Date.now()}.${extension}`;
+  
+    const { error } = await supabase.storage
+      .from("avatars")
+      .upload(path, await blob.arrayBuffer(), { contentType, upsert: true });
+    if (error) throw error;
+  
+    return supabase.storage.from("avatars").getPublicUrl(path).data.publicUrl;
+  }
+
+  const [savingProfile, setSavingProfile] = useState(false);
+
+async function handleSave() {
+  if (!session) {
+    console.log("handleSave: no session");
+    return;
+  }
+  setSavingProfile(true);
+
+  try {
+    // Upload only if a new photo was picked (local file, not an existing URL).
+    let avatarUrl = form.photoUri;
+    if (form.photoUri && !form.photoUri.startsWith("http")) {
+      avatarUrl = await uploadAvatar(form.photoUri, session.user.id);
+    }
+
+    const [firstName, ...rest] = form.name.trim().split(/\s+/);
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({
+        first_name: firstName ?? "",
+        last_name: rest.join(" "),
+        username: form.username,
+        picture_url: avatarUrl,
+        gender: form.gender || null,
+        height_cm: feetInchesToCm(form.heightFeet, form.heightInches),
+      })
+      .eq("id", session.user.id);
+
+    if (error?.code === "23505") {
+      console.log("handleSave: username taken");
+      Alert.alert("Username taken", "Please choose a different username.");
+      return;
+    }
+    if (error) throw error;
+
+    const updated = { ...form, photoUri: avatarUrl };
+    setForm(updated);
+    setSaved(updated);
+  } catch (err) {
+    console.error("handleSave failed:", err)
+    Alert.alert("Couldn't save", err instanceof Error ? err.message : "Please try again.");
+  } finally {
+    setSavingProfile(false);
+  }
   }
 
   return (
