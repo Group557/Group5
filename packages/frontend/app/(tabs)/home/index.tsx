@@ -6,20 +6,21 @@ import {
   Text,
   View
 } from "react-native";
+import ScreenHeader from "@/components/ui/ScreenHeader";
 import { globalStyles } from "@/constants/globalStyles";
 import { palette } from "@/constants/theme";
+import { useFirstName } from "@/hooks/useFirstName";
 import { supabase } from "../../../../../utils/supabase";
 export default function HomeScreen() {
   const [message, setMessage] = useState("");
+  const firstName = useFirstName();
 
-  const todayLabel = new Date()
-    .toLocaleDateString("en-US", {
-      weekday: "long",
-      month: "short",
-      day: "2-digit"
-    })
-    .toUpperCase()
-    .replace(",", " ·");
+  // Same format as the rec center, e.g. "Monday, Nov 16".
+  const todayLabel = new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "short",
+    day: "numeric"
+  });
 
   async function handleLogout() {
     // TODO: Clear the previous message.
@@ -44,14 +45,10 @@ export default function HomeScreen() {
     <ScrollView
       style={globalStyles.screen}
       contentContainerStyle={globalStyles.screenContent}>
-      {/* Greeting */}
-      <View style={styles.helloBox}>
-        <View style={styles.greetingTextWrap}>
-          <Text style={styles.brandLabel}>POLYFIT</Text>
-          <Text style={styles.dateText}>{todayLabel}</Text>
-          <Text style={styles.helloText}>HI GROUP5!</Text>
-        </View>
-      </View>
+      <ScreenHeader
+        eyebrow={todayLabel}
+        title={firstName ? `Hi ${firstName}!` : "Hi there!"}
+      />
 
       {/* Streak */}
       <View style={styles.streakBox}>
@@ -142,7 +139,9 @@ export default function HomeScreen() {
           styles.logoutButton,
           pressed && globalStyles.pressed
         ]}>
-        <Text style={globalStyles.secondaryButtonText}>Logout</Text>
+        <Text style={globalStyles.secondaryButtonText}>
+          Logout
+        </Text>
       </Pressable>
 
       {message ? (
@@ -157,32 +156,6 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  helloBox: {
-    marginBottom: 20
-  },
-  brandLabel: {
-    color: palette.sage,
-    fontSize: 12,
-    fontWeight: "800",
-    letterSpacing: 1,
-    textTransform: "uppercase",
-    marginBottom: 20
-  },
-  dateText: {
-    color: palette.forest,
-    fontSize: 13,
-    fontWeight: "700"
-  },
-  greetingTextWrap: {
-    justifyContent: "center"
-  },
-  helloText: {
-    color: palette.forest,
-    fontSize: 29,
-    fontWeight: "800",
-    marginTop: 2
-  },
-
   streakBox: {
     backgroundColor: palette.chrome,
     borderRadius: 5,

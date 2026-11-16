@@ -1,3 +1,4 @@
+import ScreenHeader from "@/components/ui/ScreenHeader";
 import { globalStyles } from "@/constants/globalStyles";
 import { palette } from "@/constants/theme";
 import { Ionicons } from "@expo/vector-icons";
@@ -21,7 +22,6 @@ import {
   View,
 } from "react-native";
 import { supabase } from "../../../../../utils/supabase";
-
 
 const GENDER_OPTIONS = ["Male", "Female", "Non-binary", "Prefer not to say"];
 
@@ -340,9 +340,11 @@ async function handleSave() {
       >
         <Stack.Screen options={{ headerShown: false }} />
 
-        <Text style={globalStyles.eyebrow}>POLYFIT</Text>
-        <Text style={globalStyles.pageTitle}>Profile</Text>
-        <Text style={[globalStyles.subtitle, styles.headerGap]}>Manage your account details.</Text>
+        <ScreenHeader
+          eyebrow="YOUR ACCOUNT"
+          title="Profile"
+          subtitle="Manage your account details."
+        />
 
         {/* Identity card — shows the last saved version */}
         <View style={styles.identityCard}>
@@ -518,9 +520,6 @@ async function handleSave() {
 }
 
 const styles = StyleSheet.create({
-  headerGap: {
-    marginBottom: 22
-  },
 
   // Heading
 
