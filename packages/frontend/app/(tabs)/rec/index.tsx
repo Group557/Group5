@@ -1,5 +1,4 @@
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
 import {
   Pressable,
   ScrollView,
@@ -7,9 +6,11 @@ import {
   Text,
   View
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import Icon, { type SymbolName } from "@/components/ui/Icon";
+import ScreenHeader from "@/components/ui/ScreenHeader";
+import { globalStyles } from "@/constants/globalStyles";
+import { useFirstName } from "@/hooks/useFirstName";
 import {
   layout,
   palette,
@@ -17,8 +18,6 @@ import {
   space,
   text
 } from "@/constants/theme";
-import { supabase } from "../../../../../utils/supabase";
-import { useAuth } from "../../../context/AuthProvider";
 
 /* ------------------------------------------------------------------ *
  * Crowd data
@@ -627,49 +626,9 @@ function CrowdChart({ data, currentHour }: CrowdChartProps) {
  * ------------------------------------------------------------------ */
 
 export default function RecCenterScreen() {
-  // Insets come from the provider Expo Router mounts at the root.
-  const insets = useSafeAreaInsets();
   const router = useRouter();
   const now = new Date();
-  const { session } = useAuth();
-  const userId = session?.user.id;
-  const [loadedName, setLoadedName] = useState<{
-    userId: string;
-    firstName: string | null;
-  } | null>(null);
-  // Ignore a name loaded for a previous user.
-  const firstName =
-    loadedName !== null && loadedName.userId === userId
-      ? loadedName.firstName
-      : null;
-
-  // Load the first name saved during onboarding for the greeting.
-  useEffect(() => {
-    let cancelled = false;
-
-    if (userId == null) {
-      return;
-    }
-
-    async function loadFirstName(id: string) {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("first_name")
-        .eq("id", id)
-        .single();
-
-      if (!cancelled) {
-        setLoadedName({
-          userId: id,
-          firstName: profile?.first_name?.trim() || null
-        });
-      }
-    }
-    void loadFirstName(userId);
-    return () => {
-      cancelled = true;
-    };
-  }, [userId]);
+  const firstName = useFirstName();
 
   const handleRecIdPress = () => {
     router.push("/rec/rec-id");
@@ -693,35 +652,19 @@ export default function RecCenterScreen() {
   const statusTone = STATUS_TONE[current.status];
 
   return (
-    <View
-      style={[
-        styles.screen,
-        {
-          paddingTop: Math.max(insets.top, layout.minTopInset),
-          paddingLeft: insets.left,
-          paddingRight: insets.right
-        }
-      ]}>
+    <View style={globalStyles.screen}>
       <ScrollView
-        style={styles.scroll}
-        contentContainerStyle={[
-          styles.content,
-          { paddingBottom: insets.bottom + space.xxl }
-        ]}
+        style={globalStyles.screen}
+        contentContainerStyle={globalStyles.screenContent}
         showsVerticalScrollIndicator={false}>
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.headerText}>
-            <Text style={styles.headerEyebrow}>
-              {formatDate(now)}
-            </Text>
-            <Text style={styles.greeting} numberOfLines={1}>
-              {firstName
-                ? `${formatGreeting(now)}, ${firstName}`
-                : formatGreeting(now)}
-            </Text>
-          </View>
-        </View>
+        <ScreenHeader
+          eyebrow={formatDate(now)}
+          title={
+            firstName
+              ? `${formatGreeting(now)}, ${firstName}`
+              : formatGreeting(now)
+          }
+        />
 
         {/* My Rec ID */}
         <Pressable
@@ -888,41 +831,6 @@ export default function RecCenterScreen() {
  * ------------------------------------------------------------------ */
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: palette.canvas
-  },
-  scroll: {
-    flex: 1
-  },
-  content: {
-    paddingHorizontal: layout.screenGutter,
-    paddingTop: layout.screenTop
-  },
-
-  // Header
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: space.lg
-  },
-  headerText: {
-    flex: 1,
-    minWidth: 0
-  },
-  // The date sits higher; the greeting's larger margin keeps it in place.
-  headerEyebrow: {
-    ...text.eyebrow,
-    color: palette.sage,
-    marginTop: -space.lg
-  },
-  greeting: {
-    ...text.display,
-    color: palette.ink,
-    marginTop: space.xs + space.lg
-  },
-
   // My Rec ID
   recIdRow: {
     flexDirection: "row",

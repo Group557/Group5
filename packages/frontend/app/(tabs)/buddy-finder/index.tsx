@@ -2,6 +2,7 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   View
@@ -9,6 +10,8 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import Icon from "@/components/ui/Icon";
+import { BrandLabel } from "@/components/ui/ScreenHeader";
+import { globalStyles } from "@/constants/globalStyles";
 import {
   layout,
   palette,
@@ -96,54 +99,68 @@ export default function BuddyFinderScreen() {
       style={[
         styles.screen,
         {
-          paddingTop: Math.max(insets.top, layout.minTopInset),
+          paddingTop: insets.top,
           paddingLeft: insets.left,
           paddingRight: insets.right
         }
       ]}>
-      <View
-        style={[
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={[
           styles.content,
           { paddingBottom: insets.bottom + space.xxl }
-        ]}>
-        {/* Header */}
+        ]}
+        showsVerticalScrollIndicator={false}>
+        <BrandLabel />
+
+        {/* Header: same eyebrow and title sizes as the other tabs */}
         <View style={styles.header}>
-          <Text
-            style={styles.title}
-            numberOfLines={1}
-            accessibilityRole="header">
-            Buddy Finder
-          </Text>
-          <View style={styles.headerActions}>
-            <Pressable
-              onPress={handleFiltersPress}
-              hitSlop={PILL_HIT_SLOP}
-              style={({ pressed }) => [
-                styles.pill,
-                styles.pillOutlined,
-                pressed && styles.pressed
-              ]}
-              accessibilityRole="button"
-              accessibilityLabel="Filters">
-              <Text style={styles.pillOutlinedText}>
-                Filters
-              </Text>
-            </Pressable>
-            <Pressable
-              onPress={handleMyProfilePress}
-              hitSlop={PILL_HIT_SLOP}
-              style={({ pressed }) => [
-                styles.pill,
-                styles.pillSolid,
-                pressed && styles.pressed
-              ]}
-              accessibilityRole="button"
-              accessibilityLabel="My Profile">
-              <Text style={styles.pillSolidText}>
-                My Profile
-              </Text>
-            </Pressable>
+          <Text style={globalStyles.eyebrow}>FIND YOUR FIT</Text>
+          <View style={styles.titleRow}>
+            {/* Shrinks a little on narrow phones so the buttons fit. */}
+            <Text
+              style={[globalStyles.pageTitle, styles.title]}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.85}
+              accessibilityRole="header">
+              Buddy Finder
+            </Text>
+            <View style={styles.headerActions}>
+              <Pressable
+                onPress={handleFiltersPress}
+                hitSlop={PILL_HIT_SLOP}
+                style={({ pressed }) => [
+                  styles.pill,
+                  styles.pillOutlined,
+                  pressed && styles.pressed
+                ]}
+                accessibilityRole="button"
+                accessibilityLabel="Filters">
+                <Text style={styles.pillOutlinedText}>
+                  Filters
+                </Text>
+              </Pressable>
+              <Pressable
+                onPress={handleMyProfilePress}
+                hitSlop={PILL_HIT_SLOP}
+                style={({ pressed }) => [
+                  styles.pill,
+                  styles.pillSolid,
+                  pressed && styles.pressed
+                ]}
+                accessibilityRole="button"
+                accessibilityLabel="My Profile">
+                <Text style={styles.pillSolidText}>
+                  My Profile
+                </Text>
+              </Pressable>
+            </View>
           </View>
+          <Text style={globalStyles.subtitle}>
+            Connect with others who match your workout style or
+            fitness goals
+          </Text>
         </View>
 
         {/* Profile card */}
@@ -287,7 +304,7 @@ export default function BuddyFinderScreen() {
             />
           </Pressable>
         </View>
-      </View>
+      </ScrollView>
     </View>
   );
 }
@@ -301,11 +318,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: palette.canvas
   },
+  scroll: {
+    flex: 1
+  },
+  // Scrolls on short phones, where the card and buttons don't fit.
   content: {
-    flex: 1,
-    paddingHorizontal: layout.screenGutter,
-    // Tighter than other screens so the whole card fits without scrolling.
-    paddingTop: space.sm
+    flexGrow: 1,
+    // Same as the other tabs, so the POLYFIT label doesn't jump.
+    paddingHorizontal: space.xl,
+    paddingTop: 28
   },
   pressed: {
     opacity: layout.pressedOpacity
@@ -313,14 +334,14 @@ const styles = StyleSheet.create({
 
   // Header
   header: {
+    marginBottom: 22
+  },
+  titleRow: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: space.lg
+    justifyContent: "space-between"
   },
   title: {
-    ...text.display,
-    color: palette.ink,
     flexShrink: 1,
     marginRight: space.md
   },

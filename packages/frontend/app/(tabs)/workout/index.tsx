@@ -1,6 +1,13 @@
 import { router } from "expo-router";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View
+} from "react-native";
 
+import ScreenHeader from "@/components/ui/ScreenHeader";
 import { globalStyles } from "@/constants/globalStyles";
 import { palette } from "@/constants/theme";
 
@@ -13,19 +20,11 @@ export default function WorkoutHomePage() {
     <ScrollView
       style={globalStyles.screen}
       contentContainerStyle={globalStyles.screenContent}>
-      {/* Top bar */}
-      <View style={styles.topBar}>
-        <Text style={styles.brandLabel}>POLYFIT</Text>
-      </View>
-
-      {/* Heading */}
-      <View style={styles.headingSection}>
-        <Text style={globalStyles.eyebrow}>TRAINING HUB</Text>
-        <Text style={globalStyles.pageTitle}>My Workouts</Text>
-        <Text style={globalStyles.subtitle}>
-          Create and organize your workouts
-        </Text>
-      </View>
+      <ScreenHeader
+        eyebrow="TRAINING HUB"
+        title="My Workouts"
+        subtitle="Create and organize your workouts"
+      />
 
       {/* Buttons */}
       <View style={styles.buttonRow}>
@@ -64,21 +63,6 @@ export default function WorkoutHomePage() {
 }
 
 const styles = StyleSheet.create({
-  topBar: {
-    marginBottom: 30
-  },
-  brandLabel: {
-    color: palette.sage,
-    fontSize: 12,
-    fontWeight: "800",
-    letterSpacing: 1,
-    textTransform: "uppercase"
-  },
-
-  headingSection: {
-    marginBottom: 22
-  },
-
   buttonRow: {
     gap: 12,
     marginBottom: 30
