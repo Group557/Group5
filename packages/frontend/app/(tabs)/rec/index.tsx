@@ -1,3 +1,4 @@
+import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   Pressable,
@@ -409,8 +410,8 @@ const STATUS_TONE: Record<
   CrowdStatus,
   { onLight: string; onDark: string }
 > = {
-  Low: { onLight: "#4A7361", onDark: "#87CDC2" },
-  Moderate: { onLight: "#8A5E08", onDark: "#E8B54A" },
+  Low: { onLight: palette.sage, onDark: palette.mint },
+  Moderate: { onLight: palette.goldText, onDark: palette.goldLight },
   High: { onLight: "#A63A24", onDark: "#F5AEA4" }
 };
 
@@ -628,6 +629,7 @@ function CrowdChart({ data, currentHour }: CrowdChartProps) {
 export default function RecCenterScreen() {
   // Insets come from the provider Expo Router mounts at the root.
   const insets = useSafeAreaInsets();
+  const router = useRouter();
   const now = new Date();
   const { session } = useAuth();
   const userId = session?.user.id;
@@ -670,7 +672,7 @@ export default function RecCenterScreen() {
   }, [userId]);
 
   const handleRecIdPress = () => {
-    // TODO: implement rec ID scan-in
+    router.push("/rec/rec-id");
   };
 
   const hoursToday = hoursForDate(now);

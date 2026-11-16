@@ -1,9 +1,10 @@
+import { palette } from "@/constants/theme";
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
     screen: {
       flex: 1,
-      backgroundColor: "#F5F4EE"
+      backgroundColor: palette.canvas
     },
     content: {
       padding: 24,
@@ -12,12 +13,12 @@ export const styles = StyleSheet.create({
     title: {
       fontSize: 28,
       fontWeight: "700",
-      color: "#234A38",
+      color: palette.ink,
       marginBottom: 12
     },
     description: {
       fontSize: 16,
-      color: "#454545",
+      color: palette.inkMuted,
       marginBottom: 24
     },
     options: {
@@ -28,15 +29,15 @@ export const styles = StyleSheet.create({
       padding: 16,
       borderRadius: 12,
       borderWidth: 2,
-      borderColor: "#D1D0C5",
-      backgroundColor: "#E4E2D6",
+      borderColor: palette.chromeLine,
+      backgroundColor: palette.chrome,
       flexDirection: "row",
       alignItems: "center",
       gap: 12
     },
     optionSelected: {
-      backgroundColor: "#234A38",
-      borderColor: "#234A38"
+      backgroundColor: palette.forest,
+      borderColor: palette.forest
     },
     optionPressed: {
       opacity: 0.8
@@ -45,48 +46,48 @@ export const styles = StyleSheet.create({
       flex: 1,
       fontSize: 16,
       fontWeight: "600",
-      color: "#1E1E1E"
+      color: palette.ink
     },
     optionLabelSelected: {
-      color: "#FFFFFF"
+      color: palette.onDark
     },
     checkmark: {
-      color: "#FFFFFF",
+      color: palette.onDark,
       fontSize: 20,
       fontWeight: "700"
     },
     progress: {
       fontSize: 14,
-      color: "#454545",
+      color: palette.inkMuted,
       marginBottom: 16
     },
     fieldLabel: {
       fontSize: 16,
       fontWeight: "600",
-      color: "#1E1E1E",
+      color: palette.ink,
       marginBottom: 8
     },
     input: {
       minHeight: 56,
       borderWidth: 1,
-      borderColor: "#666666",
+      borderColor: palette.line,
       borderRadius: 12,
-      backgroundColor: "#FFFFFF",
+      backgroundColor: palette.surface,
       padding: 16,
       fontSize: 16,
-      color: "#1E1E1E",
+      color: palette.ink,
       marginBottom: 20
     },
     primaryButton: {
       minHeight: 56,
-      backgroundColor: "#234A38",
+      backgroundColor: palette.forest,
       borderRadius: 12,
       padding: 16,
       alignItems: "center",
       justifyContent: "center"
     },
     primaryButtonText: {
-      color: "#FFFFFF",
+      color: palette.onDark,
       fontSize: 16,
       fontWeight: "700"
     },
@@ -97,12 +98,12 @@ export const styles = StyleSheet.create({
       justifyContent: "center"
     },
     backButtonText: {
-      color: "#234A38",
+      color: palette.ink,
       fontSize: 16,
       fontWeight: "600"
     },
     error: {
-      color: "#A12622",
+      color: palette.danger,
       fontSize: 16,
       marginTop: 16
     },
@@ -115,7 +116,7 @@ export const styles = StyleSheet.create({
       },
       cardDescription: {
         fontSize: 14,
-        color: "#454545",
+        color: palette.inkMuted,
         marginTop: 6,
       },
       disabled: {

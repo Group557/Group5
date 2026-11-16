@@ -1,12 +1,13 @@
+import { palette } from "@/constants/theme";
 import { Stack } from "expo-router";
 
 export default function ProfileLayout() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: "#E4E3D3" },
+        headerStyle: { backgroundColor: palette.chrome },
         headerShadowVisible: false,
-        headerTintColor: "#1F4A35",
+        headerTintColor: palette.ink,
       }}
     >
       <Stack.Screen name="index" options={{ headerShown: false }} />

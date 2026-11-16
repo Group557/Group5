@@ -1,3 +1,4 @@
+import { palette } from "@/constants/theme";
 import { Text, TextInput, View } from "react-native";
 import { styles } from "./styles";
 
@@ -22,7 +23,7 @@ export default function AgeForm({
         value={value}
         onChangeText={onChange}
         placeholder="Age in years"
-        placeholderTextColor="#666666"
+        placeholderTextColor={palette.placeholder}
         keyboardType="number-pad"
         accessibilityLabel="Age in years, optional"
       />

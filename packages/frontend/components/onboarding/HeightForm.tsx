@@ -1,3 +1,4 @@
+import { palette } from "@/constants/theme";
 import { Text, TextInput, View } from "react-native";
 import { styles } from "./styles";
 
@@ -24,7 +25,7 @@ export default function HeightForm({
         value={value}
         onChangeText={onChange}
         placeholder="For example, 175.5"
-        placeholderTextColor="#666666"
+        placeholderTextColor={palette.placeholder}
         keyboardType="decimal-pad"
         accessibilityLabel="Height in centimeters, optional"
       />
