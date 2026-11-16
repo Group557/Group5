@@ -1,13 +1,14 @@
+import { palette } from "@/constants/theme";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import type { ReactNode } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 const COLORS = {
-  bar: "#E4E2D6",
-  inactive: "#4B4B4B",
-  activeBg: "#1F4A35",
-  activeIcon: "#E4E2D6",
+  bar: palette.chrome,
+  inactive: palette.inkMuted,
+  activeBg: palette.forest,
+  activeIcon: palette.chrome,
 };
 
 type TabIconProps = {

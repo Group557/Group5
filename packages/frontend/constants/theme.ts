@@ -24,7 +24,21 @@ export const palette = {
   onDark: "#FFFFFF",
   onDarkMuted: "#C9DDD5",
   onDarkLine: "rgba(255, 255, 255, 0.18)",
-  chartBar: "#5E8F7B"
+  chartBar: "#5E8F7B",
+  /** Borders on inputs and cards, and list dividers. */
+  line: "#DCEBE5",
+  lineSoft: "#F0F4F2",
+  /** Background of text inputs and pickers. */
+  field: "#FAFCFA",
+  placeholder: "#6B7280",
+  /** Errors and destructive actions such as Sign out. */
+  danger: "#B42318",
+  /** Grey fill behind an avatar that has no photo yet. */
+  avatar: "#D7DDDA",
+  /** Beige used by the tab bar, stack headers and onboarding options. */
+  chrome: "#E4E2D6",
+  chromeLine: "#D1D0C5",
+  backdrop: "rgba(0, 0, 0, 0.35)"
 } as const;
 
 export const space = {

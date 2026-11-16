@@ -1,3 +1,4 @@
+import { palette } from "@/constants/theme";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -120,7 +121,7 @@ export default function AddExerciseModal({
           <TextInput
             style={styles.searchInput}
             placeholder="Search exercises..."
-            placeholderTextColor="#6B7280"
+            placeholderTextColor={palette.inkMuted}
             value={searchQuery}
             onChangeText={setSearchQuery}
             autoCapitalize="none"
@@ -129,7 +130,7 @@ export default function AddExerciseModal({
           />
 
           {loading ? (
-            <ActivityIndicator size="large" color="#154734" />
+            <ActivityIndicator size="large" color={palette.ink} />
           ) : error ? (
             <Text>{error}</Text>
           ) : (
@@ -226,7 +227,7 @@ const styles = StyleSheet.create({
   },
   card: {
     height: "80%",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: palette.surface,
     borderRadius: 20,
     padding: 20
   },
@@ -239,43 +240,43 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: "700",
-    color: "#154734"
+    color: palette.ink
   },
   closeButton: {
     fontSize: 24,
-    color: "#154734"
+    color: palette.ink
   },
 
   exerciseRow: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F8FAF9",
+    backgroundColor: palette.field,
     padding: 16,
     borderRadius: 12,
     marginBottom: 10
   },
   exerciseName: {
-    color: "#154734",
+    color: palette.ink,
     fontSize: 16,
     fontWeight: "700"
   },
   exerciseCategory: {
-    color: "#6B7280",
+    color: palette.inkMuted,
     fontSize: 14,
     marginTop: 4
   },
   selectedRow: {
-    backgroundColor: "#DCEBE5"
+    backgroundColor: palette.line
   },
   confirmButton: {
-    backgroundColor: "#154734",
+    backgroundColor: palette.forest,
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: "center",
     marginTop: 16
   },
   confirmButtonText: {
-    color: "#FFFFFF",
+    color: palette.onDark,
     fontSize: 16,
     fontWeight: "700"
   },
@@ -286,7 +287,7 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 8,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: palette.surface,
     marginRight: 12
   },
   exerciseDetails: {
@@ -294,13 +295,13 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     borderWidth: 1,
-    borderColor: "#DCEBE5",
+    borderColor: palette.line,
     borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 12,
     marginBottom: 16,
     fontSize: 16,
-    color: "#154734",
-    backgroundColor: "#F8FAF9"
+    color: palette.ink,
+    backgroundColor: palette.field
   }
 });

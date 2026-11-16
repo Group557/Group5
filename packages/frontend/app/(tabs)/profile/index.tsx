@@ -1,3 +1,5 @@
+import { globalStyles } from "@/constants/globalStyles";
+import { palette } from "@/constants/theme";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
@@ -20,18 +22,6 @@ import {
 } from "react-native";
 import { supabase } from "../../../../../utils/supabase";
 
-const COLORS = {
-  page: "#F8F6F0",
-  green: "#154734",
-  sage: "#789F90",
-  gray: "#6B7280",
-  card: "#FFFFFF",
-  inputBorder: "#DCEBE5",
-  inputBg: "#FAFCFA",
-  placeholder: "#A3B5AD",
-  error: "#B42318",
-  backdrop: "rgba(0, 0, 0, 0.35)",
-};
 
 const GENDER_OPTIONS = ["Male", "Female", "Non-binary", "Prefer not to say"];
 
@@ -70,7 +60,7 @@ function Avatar({ size, uri }: { size: number; uri: string | null }) {
   }
   return (
     <View style={[styles.avatar, shape]}>
-      <Ionicons name="person" size={size * 0.55} color={COLORS.green} />
+      <Ionicons name="person" size={size * 0.55} color={palette.forest} />
     </View>
   );
 }
@@ -85,9 +75,9 @@ type SelectFieldProps = {
 function SelectField({ label, value, placeholder, onPress }: SelectFieldProps) {
   return (
     <View>
-      <Text style={styles.label}>{label}</Text>
+      <Text style={globalStyles.label}>{label}</Text>
       <Pressable
-        style={({ pressed }) => [styles.input, styles.selectInput, pressed && styles.pressed]}
+        style={({ pressed }) => [globalStyles.input, styles.selectInput, pressed && globalStyles.pressed]}
         onPress={onPress}
         accessibilityRole="button"
         accessibilityLabel={`Choose ${label}`}
@@ -95,7 +85,7 @@ function SelectField({ label, value, placeholder, onPress }: SelectFieldProps) {
         <Text style={value ? styles.selectText : styles.selectPlaceholder}>
           {value || placeholder}
         </Text>
-        <Ionicons name="chevron-down" size={18} color={COLORS.sage} />
+        <Ionicons name="chevron-down" size={18} color={palette.sage} />
       </Pressable>
     </View>
   );
@@ -142,7 +132,7 @@ function OptionPicker({
             return (
               <Pressable
                 key={option}
-                style={({ pressed }) => [styles.optionRow, pressed && styles.pressed]}
+                style={({ pressed }) => [styles.optionRow, pressed && globalStyles.pressed]}
                 onPress={() => choose(option)}
                 accessibilityRole="button"
                 accessibilityState={{ selected: isSelected }}
@@ -150,7 +140,7 @@ function OptionPicker({
                 <Text style={[styles.optionText, isSelected && styles.optionTextSelected]}>
                   {option}
                 </Text>
-                {isSelected && <Ionicons name="checkmark" size={20} color={COLORS.green} />}
+                {isSelected && <Ionicons name="checkmark" size={20} color={palette.forest} />}
               </Pressable>
             );
           })}
@@ -340,19 +330,19 @@ async function handleSave() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.page}
+      style={globalStyles.screen}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <ScrollView
-        style={styles.page}
-        contentContainerStyle={styles.content}
+        style={globalStyles.screen}
+        contentContainerStyle={globalStyles.screenContent}
         keyboardShouldPersistTaps="handled"
       >
         <Stack.Screen options={{ headerShown: false }} />
 
-        <Text style={styles.eyebrow}>POLYFIT</Text>
-        <Text style={styles.title}>Profile</Text>
-        <Text style={styles.subtitle}>Manage your account details.</Text>
+        <Text style={globalStyles.eyebrow}>POLYFIT</Text>
+        <Text style={globalStyles.pageTitle}>Profile</Text>
+        <Text style={[globalStyles.subtitle, styles.headerGap]}>Manage your account details.</Text>
 
         {/* Identity card — shows the last saved version */}
         <View style={styles.identityCard}>
@@ -372,7 +362,7 @@ async function handleSave() {
 
           {/* Profile photo */}
           <Pressable
-            style={({ pressed }) => [styles.photoRow, pressed && styles.pressed]}
+            style={({ pressed }) => [styles.photoRow, pressed && globalStyles.pressed]}
             onPress={pickPhoto}
             accessibilityRole="button"
             accessibilityLabel="Change profile photo"
@@ -380,7 +370,7 @@ async function handleSave() {
             <View>
               <Avatar size={64} uri={form.photoUri} />
               <View style={styles.photoBadge}>
-                <Ionicons name="camera" size={13} color="#FFFFFF" />
+                <Ionicons name="camera" size={13} color={palette.onDark} />
               </View>
             </View>
             <View>
@@ -394,19 +384,19 @@ async function handleSave() {
             </Pressable>
           )}
 
-          <Text style={styles.label}>Name</Text>
+          <Text style={globalStyles.label}>Name</Text>
           <TextInput
-            style={styles.input}
+            style={globalStyles.input}
             value={form.name}
             onChangeText={(text) => updateField("name", text)}
             placeholder="Your name"
-            placeholderTextColor={COLORS.placeholder}
+            placeholderTextColor={palette.placeholder}
             autoCapitalize="words"
           />
-          {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
+          {errors.name && <Text style={globalStyles.errorText}>{errors.name}</Text>}
 
-          <Text style={styles.label}>Username</Text>
-          <View style={[styles.input, styles.prefixInput]}>
+          <Text style={globalStyles.label}>Username</Text>
+          <View style={[globalStyles.input, styles.prefixInput]}>
             <Text style={styles.prefix}>@</Text>
             <TextInput
               style={styles.prefixField}
@@ -415,25 +405,25 @@ async function handleSave() {
                 updateField("username", text.toLowerCase().replace(/\s/g, ""))
               }
               placeholder="username"
-              placeholderTextColor={COLORS.placeholder}
+              placeholderTextColor={palette.placeholder}
               autoCapitalize="none"
               autoCorrect={false}
             />
           </View>
-          {errors.username && <Text style={styles.errorText}>{errors.username}</Text>}
+          {errors.username && <Text style={globalStyles.errorText}>{errors.username}</Text>}
 
-          <Text style={styles.label}>Email</Text>
+          <Text style={globalStyles.label}>Email</Text>
           <TextInput
-            style={styles.input}
+            style={globalStyles.input}
             value={form.email}
             onChangeText={(text) => updateField("email", text.trim())}
             placeholder="you@calpoly.edu"
-            placeholderTextColor={COLORS.placeholder}
+            placeholderTextColor={palette.placeholder}
             keyboardType="email-address"
             autoCapitalize="none"
             autoCorrect={false}
           />
-          {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+          {errors.email && <Text style={globalStyles.errorText}>{errors.email}</Text>}
 
           <SelectField
             label="Gender"
@@ -442,13 +432,13 @@ async function handleSave() {
             onPress={() => setOpenPicker("gender")}
           />
 
-          <Text style={styles.label}>Pronouns</Text>
+          <Text style={globalStyles.label}>Pronouns</Text>
           <TextInput
-            style={styles.input}
+            style={globalStyles.input}
             value={form.pronouns}
             onChangeText={(text) => updateField("pronouns", text)}
             placeholder="e.g. she/her"
-            placeholderTextColor={COLORS.placeholder}
+            placeholderTextColor={palette.placeholder}
             autoCapitalize="none"
             autoCorrect={false}
             maxLength={30}
@@ -456,25 +446,25 @@ async function handleSave() {
 
           <View style={styles.smallInputsRow}>
             <View style={styles.smallInputGroup}>
-              <Text style={styles.label}>Height (ft)</Text>
+              <Text style={globalStyles.label}>Height (ft)</Text>
               <TextInput
-                style={styles.input}
+                style={globalStyles.input}
                 value={form.heightFeet}
                 onChangeText={(text) => updateField("heightFeet", text.replace(/\D/g, ""))}
                 placeholder="5"
-                placeholderTextColor={COLORS.placeholder}
+                placeholderTextColor={palette.placeholder}
                 keyboardType="number-pad"
                 maxLength={1}
               />
             </View>
             <View style={styles.smallInputGroup}>
-              <Text style={styles.label}>Height (in)</Text>
+              <Text style={globalStyles.label}>Height (in)</Text>
               <TextInput
-                style={styles.input}
+                style={globalStyles.input}
                 value={form.heightInches}
                 onChangeText={(text) => updateField("heightInches", text.replace(/\D/g, ""))}
                 placeholder="11"
-                placeholderTextColor={COLORS.placeholder}
+                placeholderTextColor={palette.placeholder}
                 keyboardType="number-pad"
                 maxLength={2}
               />
@@ -485,7 +475,7 @@ async function handleSave() {
             style={({ pressed }) => [
               styles.saveButton,
               !canSave && styles.buttonDisabled,
-              pressed && canSave && styles.pressed,
+              pressed && canSave && globalStyles.pressed,
             ]}
             onPress={handleSave}
             disabled={!canSave}
@@ -501,13 +491,13 @@ async function handleSave() {
         <Pressable
           style={({ pressed }) => [
             styles.signOutButton,
-            (pressed || signingOut) && styles.pressed,
+            (pressed || signingOut) && globalStyles.pressed,
           ]}
           onPress={handleSignOut}
           disabled={signingOut}
           accessibilityRole="button"
         >
-          <Ionicons name="log-out-outline" size={18} color={COLORS.error} />
+          <Ionicons name="log-out-outline" size={18} color={palette.danger} />
           <Text style={styles.signOutText}>
             {signingOut ? "Signing out..." : "Sign out"}
           </Text>
@@ -528,46 +518,18 @@ async function handleSave() {
 }
 
 const styles = StyleSheet.create({
-  page: {
-    flex: 1,
-    backgroundColor: COLORS.page,
-  },
-  content: {
-    padding: 20,
-    paddingTop: 28,
-    paddingBottom: 36,
-  },
-  pressed: {
-    opacity: 0.7,
+  headerGap: {
+    marginBottom: 22
   },
 
   // Heading
-  eyebrow: {
-    color: COLORS.sage,
-    fontSize: 12,
-    fontWeight: "800",
-    letterSpacing: 1,
-  },
-  title: {
-    color: COLORS.green,
-    fontSize: 30,
-    fontWeight: "800",
-    marginTop: 4,
-  },
-  subtitle: {
-    color: COLORS.gray,
-    fontSize: 14,
-    lineHeight: 20,
-    marginTop: 7,
-    marginBottom: 22,
-  },
 
   // Identity card
   identityCard: {
     flexDirection: "row",
     alignItems: "center",
     gap: 14,
-    backgroundColor: COLORS.green,
+    backgroundColor: palette.forest,
     borderRadius: 18,
     padding: 18,
     marginBottom: 16,
@@ -576,26 +538,26 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   identityName: {
-    color: "#FFFFFF",
+    color: palette.onDark,
     fontSize: 17,
     fontWeight: "800",
   },
   identityHandle: {
-    color: "#BFD3CA",
+    color: palette.onDarkMuted,
     fontSize: 14,
     marginTop: 2,
   },
   avatar: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: palette.surface,
     borderWidth: 1,
-    borderColor: COLORS.inputBorder,
+    borderColor: palette.line,
     alignItems: "center",
     justifyContent: "center",
   },
 
   // Cards
   formCard: {
-    backgroundColor: COLORS.card,
+    backgroundColor: palette.surface,
     borderRadius: 18,
     padding: 18,
   },
@@ -603,7 +565,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   sectionEyebrow: {
-    color: COLORS.sage,
+    color: palette.sage,
     fontSize: 12,
     fontWeight: "800",
     letterSpacing: 1,
@@ -623,61 +585,44 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: COLORS.green,
+    backgroundColor: palette.forest,
     borderWidth: 2,
-    borderColor: COLORS.card,
+    borderColor: palette.surface,
     alignItems: "center",
     justifyContent: "center",
   },
   photoTitle: {
-    color: COLORS.green,
+    color: palette.forest,
     fontSize: 15,
     fontWeight: "700",
   },
   photoSubtitle: {
-    color: COLORS.gray,
+    color: palette.inkMuted,
     fontSize: 13,
     marginTop: 2,
   },
   removePhoto: {
-    color: COLORS.error,
+    color: palette.danger,
     fontSize: 13,
     fontWeight: "700",
     marginTop: 8,
   },
 
   // Form
-  label: {
-    color: COLORS.green,
-    fontSize: 14,
-    fontWeight: "700",
-    marginBottom: 7,
-    marginTop: 12,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: COLORS.inputBorder,
-    borderRadius: 11,
-    backgroundColor: COLORS.inputBg,
-    color: COLORS.green,
-    fontSize: 15,
-    paddingHorizontal: 13,
-    paddingVertical: 12,
-  },
   prefixInput: {
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 0,
   },
   prefix: {
-    color: COLORS.sage,
+    color: palette.sage,
     fontSize: 15,
     fontWeight: "700",
     marginRight: 2,
   },
   prefixField: {
     flex: 1,
-    color: COLORS.green,
+    color: palette.forest,
     fontSize: 15,
     paddingVertical: 12,
   },
@@ -687,17 +632,12 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   selectText: {
-    color: COLORS.green,
+    color: palette.forest,
     fontSize: 15,
   },
   selectPlaceholder: {
-    color: COLORS.placeholder,
+    color: palette.placeholder,
     fontSize: 15,
-  },
-  errorText: {
-    color: COLORS.error,
-    fontSize: 12,
-    marginTop: 5,
   },
   smallInputsRow: {
     flexDirection: "row",
@@ -707,7 +647,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   saveButton: {
-    backgroundColor: COLORS.green,
+    backgroundColor: palette.forest,
     borderRadius: 14,
     paddingVertical: 16,
     alignItems: "center",
@@ -717,7 +657,7 @@ const styles = StyleSheet.create({
     opacity: 0.45,
   },
   saveButtonText: {
-    color: "#FFFFFF",
+    color: palette.onDark,
     fontSize: 16,
     fontWeight: "800",
   },
@@ -725,14 +665,14 @@ const styles = StyleSheet.create({
   // Pop-up sheet
   backdrop: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: COLORS.backdrop,
+    backgroundColor: palette.backdrop,
   },
   sheetWrapper: {
     flex: 1,
     justifyContent: "flex-end",
   },
   sheet: {
-    backgroundColor: COLORS.card,
+    backgroundColor: palette.surface,
     borderTopLeftRadius: 22,
     borderTopRightRadius: 22,
     padding: 20,
@@ -743,11 +683,11 @@ const styles = StyleSheet.create({
     width: 40,
     height: 4,
     borderRadius: 2,
-    backgroundColor: COLORS.inputBorder,
+    backgroundColor: palette.line,
     marginBottom: 14,
   },
   sheetTitle: {
-    color: COLORS.green,
+    color: palette.forest,
     fontSize: 20,
     fontWeight: "800",
     marginBottom: 6,
@@ -758,10 +698,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.inputBorder,
+    borderBottomColor: palette.line,
   },
   optionText: {
-    color: COLORS.green,
+    color: palette.forest,
     fontSize: 16,
   },
   optionTextSelected: {
@@ -775,13 +715,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   useButton: {
-    backgroundColor: COLORS.green,
+    backgroundColor: palette.forest,
     borderRadius: 11,
     paddingHorizontal: 18,
     justifyContent: "center",
   },
   useButtonText: {
-    color: "#FFFFFF",
+    color: palette.onDark,
     fontSize: 15,
     fontWeight: "800",
   },
@@ -792,15 +732,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    backgroundColor: COLORS.card,
+    backgroundColor: palette.surface,
     borderWidth: 1,
-    borderColor: COLORS.inputBorder,
+    borderColor: palette.line,
     borderRadius: 14,
     paddingVertical: 16,
     marginTop: 16,
   },
   signOutText: {
-    color: COLORS.error,
+    color: palette.danger,
     fontSize: 16,
     fontWeight: "800",
   },

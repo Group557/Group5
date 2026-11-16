@@ -1,3 +1,4 @@
+import { palette } from "@/constants/theme";
 import { Text, TextInput, View } from "react-native";
 import { styles } from "./styles";
 
@@ -28,7 +29,7 @@ export default function NameForm({
         value={firstName}
         onChangeText={onFirstNameChange}
         placeholder="First name"
-        placeholderTextColor="#666666"
+        placeholderTextColor={palette.placeholder}
         autoCapitalize="words"
         autoCorrect={false}
         accessibilityLabel="First name, required"
@@ -40,7 +41,7 @@ export default function NameForm({
         value={lastName}
         onChangeText={onLastNameChange}
         placeholder="Last name"
-        placeholderTextColor="#666666"
+        placeholderTextColor={palette.placeholder}
         autoCapitalize="words"
         autoCorrect={false}
         accessibilityLabel="Last name, required"

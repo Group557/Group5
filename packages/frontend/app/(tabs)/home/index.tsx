@@ -6,6 +6,9 @@ import {
   Text,
   View
 } from "react-native";
+import PolyFitLogo from "@/components/ui/PolyFitLogo";
+import { globalStyles } from "@/constants/globalStyles";
+import { palette } from "@/constants/theme";
 import { supabase } from "../../../../../utils/supabase";
 export default function HomeScreen() {
   const [message, setMessage] = useState("");
@@ -40,14 +43,10 @@ export default function HomeScreen() {
   }
   return (
     <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.content}>
+      style={globalStyles.screen}
+      contentContainerStyle={globalStyles.screenContent}>
       {/* App name */}
-      <View style={styles.logoRow}>
-        <Text style={styles.logoIcon}>✣</Text>
-        <Text style={styles.logo}>PolyFit</Text>
-        <View style={styles.logoDot} />
-      </View>
+      <PolyFitLogo style={styles.logoRow} />
 
       {/* Greeting */}
       <View style={styles.helloBox}>
@@ -148,23 +147,17 @@ export default function HomeScreen() {
         accessibilityRole="button"
         onPress={handleLogout}
         style={({ pressed }) => [
-          {
-            backgroundColor: pressed ? "#D7DDDA" : "#84AA9E",
-            padding: 10,
-            borderRadius: 5,
-            alignItems: "center",
-            marginTop: 20
-          }
+          globalStyles.secondaryButton,
+          styles.logoutButton,
+          pressed && globalStyles.pressed
         ]}>
-        <Text style={{ color: "#FFFFFF", fontWeight: "700" }}>
-          Logout
-        </Text>
+        <Text style={globalStyles.secondaryButtonText}>Logout</Text>
       </Pressable>
 
       {message ? (
         <Text
           accessibilityRole="alert"
-          style={{ color: "red", marginTop: 10 }}>
+          style={globalStyles.errorText}>
           {message}
         </Text>
       ) : null}
@@ -173,48 +166,18 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F8F6F0"
-  },
-  content: {
-    padding: 20,
-    paddingTop: 28,
-    paddingBottom: 32
-  },
-
   logoRow: {
-    flexDirection: "row",
-    alignItems: "center",
     marginBottom: 28
-  },
-  logoIcon: {
-    color: "#154734",
-    fontSize: 25,
-    marginRight: 7
-  },
-  logo: {
-    color: "#154734",
-    fontSize: 22,
-    fontWeight: "800"
-  },
-  logoDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 4,
-    backgroundColor: "#BD8013",
-    marginLeft: 7,
-    marginTop: 5
   },
 
   helloBox: {
-    backgroundColor: "#154734",
+    backgroundColor: palette.forest,
     borderRadius: 5,
     padding: 20,
     marginBottom: 20
   },
   dateText: {
-    color: "#FFFFFF",
+    color: palette.onDark,
     fontSize: 13,
     fontWeight: "700"
   },
@@ -225,7 +188,7 @@ const styles = StyleSheet.create({
     marginTop: 8
   },
   helloText: {
-    color: "#FFFFFF",
+    color: palette.onDark,
     fontSize: 29,
     fontWeight: "800"
   },
@@ -234,8 +197,8 @@ const styles = StyleSheet.create({
     height: 62,
     borderRadius: 31,
     borderWidth: 2,
-    borderColor: "#BD8013",
-    backgroundColor: "#D7DDDA",
+    borderColor: palette.gold,
+    backgroundColor: palette.avatar,
     alignItems: "center",
     justifyContent: "center"
   },
@@ -243,7 +206,7 @@ const styles = StyleSheet.create({
     width: 18,
     height: 18,
     borderRadius: 9,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: palette.onDark,
     marginBottom: 3
   },
   profileBody: {
@@ -251,11 +214,11 @@ const styles = StyleSheet.create({
     height: 19,
     borderTopLeftRadius: 18,
     borderTopRightRadius: 18,
-    backgroundColor: "#FFFFFF"
+    backgroundColor: palette.onDark
   },
 
   streakBox: {
-    backgroundColor: "#E9E8D8",
+    backgroundColor: palette.chrome,
     borderRadius: 5,
     padding: 16,
     marginBottom: 28,
@@ -268,13 +231,13 @@ const styles = StyleSheet.create({
     width: 135
   },
   streakNumber: {
-    color: "#5B5F61",
+    color: palette.inkMuted,
     fontSize: 26,
     fontWeight: "800",
     lineHeight: 28
   },
   streakLabel: {
-    color: "#5B5F61",
+    color: palette.inkMuted,
     fontSize: 11,
     fontWeight: "800"
   },
@@ -290,52 +253,56 @@ const styles = StyleSheet.create({
     width: 35,
     height: 35,
     borderRadius: 18,
-    backgroundColor: "#BBD7CF",
+    backgroundColor: palette.surfaceSage,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 6
   },
   completedDay: {
-    backgroundColor: "#84AA9E"
+    backgroundColor: palette.mint
   },
   currentDay: {
-    backgroundColor: "#F8F6F0",
+    backgroundColor: palette.canvas,
     borderWidth: 2,
-    borderColor: "#84AA9E"
+    borderColor: palette.sage
   },
   check: {
-    color: "#154734",
+    color: palette.ink,
     fontSize: 18,
     fontWeight: "800"
   },
   currentDot: {
-    color: "#154734",
+    color: palette.ink,
     fontSize: 22
   },
   futureDot: {
-    color: "#6B7280",
+    color: palette.inkMuted,
     fontSize: 18
   },
   dayLabel: {
-    color: "#5B5F61",
+    color: palette.inkMuted,
     fontSize: 11,
     fontWeight: "700"
   },
 
+  logoutButton: {
+    marginTop: 20
+  },
+
   largeBox: {
     height: 156,
-    backgroundColor: "#84AA9E",
+    backgroundColor: palette.sage,
     borderRadius: 5,
     padding: 18,
     marginBottom: 20
   },
   cardTitle: {
-    color: "#FFFFFF",
+    color: palette.onDark,
     fontSize: 16,
     fontWeight: "700"
   },
   cardSubtitle: {
-    color: "#EAF3EF",
+    color: palette.onDarkMuted,
     fontSize: 13,
     marginTop: 8
   }

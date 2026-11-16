@@ -1,3 +1,5 @@
+import { globalStyles } from "@/constants/globalStyles";
+import { palette } from "@/constants/theme";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
@@ -110,29 +112,29 @@ export default function AddWorkoutScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.page}
+      style={globalStyles.screen}
       behavior={Platform.OS === "ios" ? "padding" : undefined}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={globalStyles.screenContent}>
         <Pressable style={styles.backButton} onPress={goBack}>
           <Text style={styles.backText}>‹ Back</Text>
         </Pressable>
 
-        <Text style={styles.title}>New Workout</Text>
-        <Text style={styles.subtitle}>
+        <Text style={globalStyles.pageTitle}>New Workout</Text>
+        <Text style={[globalStyles.subtitle, styles.headerGap]}>
           Name your workout, then select saved exercises from
           your library to include.
         </Text>
 
         <View style={styles.formCard}>
-          <Text style={styles.label}>Workout name</Text>
-          <TextInput style={styles.input} value={workoutName} onChangeText={setWorkoutName} placeholder="Example: Push Day" />
-          <Text style={styles.label}>Category</Text>
+          <Text style={globalStyles.label}>Workout name</Text>
+          <TextInput style={globalStyles.input} value={workoutName} onChangeText={setWorkoutName} placeholder="Example: Push Day" />
+          <Text style={globalStyles.label}>Category</Text>
           <Pressable style={styles.select} onPress={() => setCategoryOpen(true)}>
             <Text style={styles.selectValue}>{category || "Select a category"}</Text>
           </Pressable>
-          <Text style={styles.label}>Notes (optional)</Text>
-          <TextInput style={[styles.input, styles.notesInput]} value={description} onChangeText={setDescription} multiline placeholder="Workout notes" />
-          <Text style={styles.label}>Exercises</Text>
+          <Text style={globalStyles.label}>Notes (optional)</Text>
+          <TextInput style={[globalStyles.input, styles.notesInput]} value={description} onChangeText={setDescription} multiline placeholder="Workout notes" />
+          <Text style={globalStyles.label}>Exercises</Text>
           {addedExercises.length === 0 ? <Text style={styles.addedEmptyText}>Tap Add Exercise to choose from the library.</Text> : addedExercises.map((exercise) => (
             <View key={exercise.id} style={styles.addedRow}>
               <Text style={styles.exerciseRowText}>{exercise.exercise_name}</Text>
@@ -224,66 +226,30 @@ export default function AddWorkoutScreen() {
 }
 
 const styles = StyleSheet.create({
-  page: {
-    flex: 1,
-    backgroundColor: "#F8F6F0"
-  },
-  content: {
-    padding: 20,
-    paddingTop: 28,
-    paddingBottom: 36
+  headerGap: {
+    marginBottom: 22
   },
   backButton: {
     marginBottom: 28
   },
   backText: {
-    color: "#154734",
+    color: palette.ink,
     fontSize: 16,
     fontWeight: "700"
   },
-  title: {
-    color: "#154734",
-    fontSize: 30,
-    fontWeight: "800",
-    marginTop: 4
-  },
-  subtitle: {
-    color: "#6B7280",
-    fontSize: 14,
-    lineHeight: 20,
-    marginTop: 7,
-    marginBottom: 22
-  },
   formCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: palette.surface,
     borderRadius: 18,
     padding: 18
-  },
-  label: {
-    color: "#154734",
-    fontSize: 14,
-    fontWeight: "700",
-    marginBottom: 7,
-    marginTop: 12
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#DCEBE5",
-    borderRadius: 11,
-    backgroundColor: "#FAFCFA",
-    color: "#154734",
-    fontSize: 15,
-    paddingHorizontal: 13,
-    paddingVertical: 12
   },
   notesInput: {
     height: 64
   },
   select: {
     borderWidth: 1,
-    borderColor: "#DCEBE5",
+    borderColor: palette.line,
     borderRadius: 11,
-    backgroundColor: "#FAFCFA",
+    backgroundColor: palette.field,
     paddingHorizontal: 13,
     paddingVertical: 12,
     flexDirection: "row",
@@ -291,11 +257,11 @@ const styles = StyleSheet.create({
     justifyContent: "space-between"
   },
   selectValue: {
-    color: "#154734",
+    color: palette.ink,
     fontSize: 15
   },
   browseBlock: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: palette.surface,
     borderRadius: 18,
     padding: 18,
     marginTop: 16,
@@ -304,12 +270,12 @@ const styles = StyleSheet.create({
     justifyContent: "space-between"
   },
   browseBlockTitle: {
-    color: "#154734",
+    color: palette.ink,
     fontSize: 16,
     fontWeight: "800"
   },
   browseBlockHint: {
-    color: "#6B7280",
+    color: palette.inkMuted,
     fontSize: 13,
     marginTop: 4
   },
@@ -318,17 +284,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     borderBottomWidth: 1,
-    borderBottomColor: "#F0F4F2",
+    borderBottomColor: palette.lineSoft,
     paddingVertical: 12
   },
   addedRemove: {
-    color: "#154734",
+    color: palette.ink,
     fontSize: 18,
     fontWeight: "700",
     paddingHorizontal: 6
   },
   addedEmptyText: {
-    color: "#6B7280",
+    color: palette.inkMuted,
     fontSize: 13,
     lineHeight: 19,
     paddingBottom: 4
@@ -337,26 +303,26 @@ const styles = StyleSheet.create({
     flex: 1
   },
   browseCardChevron: {
-    color: "#154734",
+    color: palette.ink,
     fontSize: 26,
     fontWeight: "700",
     marginLeft: 12
   },
   saveButton: {
-    backgroundColor: "#154734",
+    backgroundColor: palette.forest,
     borderRadius: 14,
     paddingVertical: 18,
     alignItems: "center",
     marginTop: 30,
     marginBottom: 8,
-    shadowColor: "#154734",
+    shadowColor: palette.forest,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 8,
     elevation: 4
   },
   saveButtonText: {
-    color: "#FFFFFF",
+    color: palette.onDark,
     fontSize: 17,
     fontWeight: "800",
     letterSpacing: 0.3
@@ -365,7 +331,7 @@ const styles = StyleSheet.create({
     opacity: 0.6
   },
   saveErrorText: {
-    color: "#B91C1C",
+    color: palette.danger,
     fontSize: 13,
     fontWeight: "600",
     textAlign: "center",
@@ -378,12 +344,12 @@ const styles = StyleSheet.create({
     padding: 24
   },
   modalCard: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: palette.surface,
     borderRadius: 18,
     padding: 18
   },
   modalTitle: {
-    color: "#154734",
+    color: palette.ink,
     fontSize: 17,
     fontWeight: "800",
     marginBottom: 8
@@ -391,14 +357,14 @@ const styles = StyleSheet.create({
   modalOption: {
     paddingVertical: 13,
     borderBottomWidth: 1,
-    borderBottomColor: "#F0F4F2"
+    borderBottomColor: palette.lineSoft
   },
   modalOptionText: {
-    color: "#154734",
+    color: palette.ink,
     fontSize: 15
   },
   modalOptionTextActive: {
-    color: "#154734",
+    color: palette.ink,
     fontSize: 15,
     fontWeight: "800"
   },
