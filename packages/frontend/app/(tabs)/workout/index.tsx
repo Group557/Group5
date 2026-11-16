@@ -1,7 +1,6 @@
 import { router } from "expo-router";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
-import PolyFitLogo from "@/components/ui/PolyFitLogo";
 import { globalStyles } from "@/constants/globalStyles";
 import { palette } from "@/constants/theme";
 
@@ -15,21 +14,16 @@ export default function WorkoutHomePage() {
       style={globalStyles.screen}
       contentContainerStyle={globalStyles.screenContent}>
       {/* Top bar */}
-      <View style={[globalStyles.topBar, styles.topBar]}>
-        <PolyFitLogo />
-
-        <View style={styles.profileCircle}>
-          <View style={styles.profileHead} />
-          <View style={styles.profileBody} />
-        </View>
+      <View style={styles.topBar}>
+        <Text style={styles.brandLabel}>POLYFIT</Text>
       </View>
 
       {/* Heading */}
       <View style={styles.headingSection}>
-        <Text style={globalStyles.eyebrow}>YOUR FITNESS</Text>
+        <Text style={globalStyles.eyebrow}>TRAINING HUB</Text>
         <Text style={globalStyles.pageTitle}>My Workouts</Text>
         <Text style={globalStyles.subtitle}>
-          Add exercises, then combine them into a workout
+          Create and organize your workouts
         </Text>
       </View>
 
@@ -62,8 +56,7 @@ export default function WorkoutHomePage() {
           No workouts created
         </Text>
         <Text style={styles.emptyText}>
-          After adding exercises, create a workout and select
-          the exercises or add your own!
+          Add excercises to create your workout routine!
         </Text>
       </View>
     </ScrollView>
@@ -71,33 +64,15 @@ export default function WorkoutHomePage() {
 }
 
 const styles = StyleSheet.create({
-
   topBar: {
     marginBottom: 30
   },
-  profileCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    borderWidth: 2,
-    borderColor: palette.gold,
-    backgroundColor: palette.avatar,
-    alignItems: "center",
-    justifyContent: "center"
-  },
-  profileHead: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: palette.surface,
-    marginBottom: 2
-  },
-  profileBody: {
-    width: 27,
-    height: 15,
-    borderTopLeftRadius: 14,
-    borderTopRightRadius: 14,
-    backgroundColor: palette.surface
+  brandLabel: {
+    color: palette.sage,
+    fontSize: 12,
+    fontWeight: "800",
+    letterSpacing: 1,
+    textTransform: "uppercase"
   },
 
   headingSection: {

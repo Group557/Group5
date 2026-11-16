@@ -6,7 +6,6 @@ import {
   Text,
   View
 } from "react-native";
-import PolyFitLogo from "@/components/ui/PolyFitLogo";
 import { globalStyles } from "@/constants/globalStyles";
 import { palette } from "@/constants/theme";
 import { supabase } from "../../../../../utils/supabase";
@@ -45,20 +44,12 @@ export default function HomeScreen() {
     <ScrollView
       style={globalStyles.screen}
       contentContainerStyle={globalStyles.screenContent}>
-      {/* App name */}
-      <PolyFitLogo style={styles.logoRow} />
-
       {/* Greeting */}
       <View style={styles.helloBox}>
-        <Text style={styles.dateText}>{todayLabel}</Text>
-
-        <View style={styles.greetingRow}>
+        <View style={styles.greetingTextWrap}>
+          <Text style={styles.brandLabel}>POLYFIT</Text>
+          <Text style={styles.dateText}>{todayLabel}</Text>
           <Text style={styles.helloText}>HI GROUP5!</Text>
-
-          <View style={styles.profileCircle}>
-            <View style={styles.profileHead} />
-            <View style={styles.profileBody} />
-          </View>
         </View>
       </View>
 
@@ -166,55 +157,30 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  logoRow: {
-    marginBottom: 28
-  },
-
   helloBox: {
-    backgroundColor: palette.forest,
-    borderRadius: 5,
-    padding: 20,
+    marginBottom: 20
+  },
+  brandLabel: {
+    color: palette.sage,
+    fontSize: 12,
+    fontWeight: "800",
+    letterSpacing: 1,
+    textTransform: "uppercase",
     marginBottom: 20
   },
   dateText: {
-    color: palette.onDark,
+    color: palette.forest,
     fontSize: 13,
     fontWeight: "700"
   },
-  greetingRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: 8
-  },
-  helloText: {
-    color: palette.onDark,
-    fontSize: 29,
-    fontWeight: "800"
-  },
-  profileCircle: {
-    width: 62,
-    height: 62,
-    borderRadius: 31,
-    borderWidth: 2,
-    borderColor: palette.gold,
-    backgroundColor: palette.avatar,
-    alignItems: "center",
+  greetingTextWrap: {
     justifyContent: "center"
   },
-  profileHead: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    backgroundColor: palette.onDark,
-    marginBottom: 3
-  },
-  profileBody: {
-    width: 34,
-    height: 19,
-    borderTopLeftRadius: 18,
-    borderTopRightRadius: 18,
-    backgroundColor: palette.onDark
+  helloText: {
+    color: palette.forest,
+    fontSize: 29,
+    fontWeight: "800",
+    marginTop: 2
   },
 
   streakBox: {
