@@ -13,8 +13,11 @@ import {
   TextInput,
   View
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import AddExerciseModal, { type Exercise } from "../../../components/workout/add_exercise_modal";
+import AddExerciseModal, {
+  type Exercise
+} from "../../../components/workout/add_exercise_modal";
 
 import { supabase } from "../../../../../utils/supabase";
 
@@ -29,13 +32,18 @@ const CATEGORIES = [
 ];
 
 export default function AddWorkoutScreen() {
+  const insets = useSafeAreaInsets();
   const [workoutName, setWorkoutName] = useState("");
   const [category, setCategory] = useState("");
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [libraryOpen, setLibraryOpen] = useState(false);
   const [description, setDescription] = useState("");
-  const [addedExercises, setAddedExercises] = useState<Exercise[]>([]);
-  const addedIds = addedExercises.map((exercise) => exercise.id);
+  const [addedExercises, setAddedExercises] = useState<
+    Exercise[]
+  >([]);
+  const addedIds = addedExercises.map(
+    (exercise) => exercise.id
+  );
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
 
@@ -112,9 +120,10 @@ export default function AddWorkoutScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={globalStyles.screen}
+      style={[globalStyles.screen, { paddingTop: insets.top }]}
       behavior={Platform.OS === "ios" ? "padding" : undefined}>
-      <ScrollView contentContainerStyle={globalStyles.screenContent}>
+      <ScrollView
+        contentContainerStyle={globalStyles.screenContent}>
         <Pressable style={styles.backButton} onPress={goBack}>
           <Text style={styles.backText}>‹ Back</Text>
         </Pressable>
@@ -127,22 +136,56 @@ export default function AddWorkoutScreen() {
 
         <View style={styles.formCard}>
           <Text style={globalStyles.label}>Workout name</Text>
-          <TextInput style={globalStyles.input} value={workoutName} onChangeText={setWorkoutName} placeholder="Example: Push Day" />
+          <TextInput
+            style={globalStyles.input}
+            value={workoutName}
+            onChangeText={setWorkoutName}
+            placeholder="Example: Push Day"
+          />
           <Text style={globalStyles.label}>Category</Text>
-          <Pressable style={styles.select} onPress={() => setCategoryOpen(true)}>
-            <Text style={styles.selectValue}>{category || "Select a category"}</Text>
+          <Pressable
+            style={styles.select}
+            onPress={() => setCategoryOpen(true)}>
+            <Text style={styles.selectValue}>
+              {category || "Select a category"}
+            </Text>
           </Pressable>
-          <Text style={globalStyles.label}>Notes (optional)</Text>
-          <TextInput style={[globalStyles.input, styles.notesInput]} value={description} onChangeText={setDescription} multiline placeholder="Workout notes" />
+          <Text style={globalStyles.label}>
+            Notes (optional)
+          </Text>
+          <TextInput
+            style={[globalStyles.input, styles.notesInput]}
+            value={description}
+            onChangeText={setDescription}
+            multiline
+            placeholder="Workout notes"
+          />
           <Text style={globalStyles.label}>Exercises</Text>
-          {addedExercises.length === 0 ? <Text style={styles.addedEmptyText}>Tap Add Exercise to choose from the library.</Text> : addedExercises.map((exercise) => (
-            <View key={exercise.id} style={styles.addedRow}>
-              <Text style={styles.exerciseRowText}>{exercise.exercise_name}</Text>
-              <Pressable onPress={() => setAddedExercises((current) => current.filter((item) => item.id !== exercise.id))} accessibilityRole="button" accessibilityLabel={`Remove ${exercise.exercise_name}`}>
-                <Text style={styles.addedRemove}>✕</Text>
-              </Pressable>
-            </View>
-          ))}
+          {addedExercises.length === 0 ? (
+            <Text style={styles.addedEmptyText}>
+              Tap Add Exercise to choose from the library.
+            </Text>
+          ) : (
+            addedExercises.map((exercise) => (
+              <View key={exercise.id} style={styles.addedRow}>
+                <Text style={styles.exerciseRowText}>
+                  {exercise.exercise_name}
+                </Text>
+                <Pressable
+                  onPress={() =>
+                    setAddedExercises((current) =>
+                      current.filter(
+                        (item) => item.id !== exercise.id
+                      )
+                    )
+                  }
+                  accessibilityRole="button"
+                  accessibilityLabel={`Remove ${exercise.exercise_name}`}>
+                  <Text style={styles.addedRemove}>✕</Text>
+                </Pressable>
+              </View>
+            ))
+          )}
         </View>
 
         <Pressable
@@ -370,5 +413,5 @@ const styles = StyleSheet.create({
   },
   exerciseRowText: {
     flex: 1
-  },
+  }
 });
