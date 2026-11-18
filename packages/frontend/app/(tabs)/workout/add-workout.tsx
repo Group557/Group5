@@ -1,12 +1,11 @@
 import { globalStyles } from "@/constants/globalStyles";
 import { palette } from "@/constants/theme";
 import { router } from "expo-router";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import {
   ActionSheetIOS,
   Alert,
   KeyboardAvoidingView,
-  Modal,
   Platform,
   Pressable,
   ScrollView,
@@ -18,47 +17,18 @@ import {
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import AddExerciseModal, {
-  type Exercise
-} from "../../../components/workout/add_exercise_modal";
+import AddExerciseModal from "../../../components/workout/add_exercise_modal";
 
-import { supabase } from "../../../../../utils/supabase";
-
-type WorkoutSet = {
-  id: string;
-  reps: string;
-  weight: string;
-};
-type WorkoutExercise = Exercise & {
-  sets: WorkoutSet[];
-};
-
-const CATEGORIES = [
-  "Cardio / Aerobic",
-  "Strength / Resistance",
-  "HIIT",
-  "Flexibility / Mobility",
-  "Balance / Stability",
-  "Circuit",
-  "Other"
-];
+import {
+  useWorkoutDraft,
+  WorkoutExercise
+} from "@/context/WorkoutDraftProvider";
 
 export default function AddWorkoutScreen() {
+  const { addedExercises, setAddedExercises, createSet } =
+    useWorkoutDraft();
   const insets = useSafeAreaInsets();
-  const nextSetId = useRef(1);
-  const [workoutName, setWorkoutName] = useState("");
-  const [category, setCategory] = useState("");
-  const [categoryOpen, setCategoryOpen] = useState(false);
   const [libraryOpen, setLibraryOpen] = useState(false);
-  const [description, setDescription] = useState("");
-  const [addedExercises, setAddedExercises] = useState<
-    WorkoutExercise[]
-  >([]);
-  const addedIds = addedExercises.map(
-    (exercise) => exercise.id
-  );
-  const [saving, setSaving] = useState(false);
-  const [saveError, setSaveError] = useState("");
 
   const updateSet = (
     exerciseId: number,
@@ -83,13 +53,7 @@ export default function AddWorkoutScreen() {
   };
 
   const addSet = (exerciseId: number) => {
-    const newSet: WorkoutSet = {
-      id: `added-${nextSetId.current}`,
-      reps: "",
-      weight: ""
-    };
-
-    nextSetId.current += 1;
+    const newSet = createSet();
 
     setAddedExercises((current) =>
       current.map((exercise) =>
@@ -156,68 +120,28 @@ export default function AddWorkoutScreen() {
       router.replace("/workout");
     }
   };
-
-  const handleCreateWorkout = async () => {
-    if (!workoutName.trim()) {
-      setSaveError("Please name your workout first.");
+  const handleFinish = () => {
+    if (addedExercises.length === 0) {
+      Alert.alert(
+        "Add an exercise",
+        "Choose an exercise first."
+      );
       return;
     }
 
-    setSaving(true);
-    setSaveError("");
-
-    // 1. Save the workout itself.
-    const { data: workout, error: workoutError } =
-      await supabase
-        .from("workouts")
-        .insert({
-          workout_name: workoutName.trim(),
-          workout_category: category || null,
-          workout_notes: description || null
-        })
-        .select("id")
-        .single();
-
-    if (workoutError || !workout) {
-      console.log(
-        "Could not save workout:",
-        workoutError?.message
+    if (
+      addedExercises.some(
+        (exercise) => exercise.sets.length === 0
+      )
+    ) {
+      Alert.alert(
+        "Add a set",
+        "Each exercise needs at least one set."
       );
-      setSaveError(
-        workoutError
-          ? `Could not save workout: ${workoutError.message}`
-          : "Could not save workout. Please try again."
-      );
-      setSaving(false);
       return;
     }
 
-    // 2. Save the exercises that were added to this workout.
-    if (addedIds.length > 0) {
-      const rows = addedIds.map((exerciseId) => ({
-        workout_id: workout.id,
-        exercise_id: exerciseId
-      }));
-
-      const { error: linkError } = await supabase
-        .from("workout_exercises")
-        .insert(rows);
-
-      if (linkError) {
-        console.log(
-          "Could not save workout exercises:",
-          linkError.message
-        );
-        setSaveError(
-          `Workout saved, but exercises failed: ${linkError.message}`
-        );
-        setSaving(false);
-        return;
-      }
-    }
-
-    setSaving(false);
-    goBack();
+    router.push("/workout/workout-details");
   };
 
   return (
@@ -231,34 +155,9 @@ export default function AddWorkoutScreen() {
         </Pressable>
 
         <Text style={globalStyles.pageTitle}>New Workout</Text>
-
         <View style={styles.formCard}>
-          <Text style={globalStyles.label}>Workout name</Text>
-          <TextInput
-            style={globalStyles.input}
-            value={workoutName}
-            onChangeText={setWorkoutName}
-            placeholder="Example: Push Day"
-          />
-          <Text style={globalStyles.label}>Category</Text>
-          <Pressable
-            style={styles.select}
-            onPress={() => setCategoryOpen(true)}>
-            <Text style={styles.selectValue}>
-              {category || "Select a category"}
-            </Text>
-          </Pressable>
-          <Text style={globalStyles.label}>
-            Notes (optional)
-          </Text>
-          <TextInput
-            style={[globalStyles.input, styles.notesInput]}
-            value={description}
-            onChangeText={setDescription}
-            multiline
-            placeholder="Workout notes"
-          />
           <Text style={globalStyles.label}>Exercises</Text>
+
           {addedExercises.length === 0 ? (
             <Text style={styles.addedEmptyText}>
               Tap Add Exercise to choose from the library.
@@ -270,6 +169,7 @@ export default function AddWorkoutScreen() {
                   <Text style={styles.exerciseRowText}>
                     {exercise.exercise_name}
                   </Text>
+
                   <Pressable
                     style={styles.exerciseMenuButton}
                     onPress={() => openExerciseMenu(exercise)}
@@ -280,6 +180,7 @@ export default function AddWorkoutScreen() {
                     </Text>
                   </Pressable>
                 </View>
+
                 <View style={styles.setRow}>
                   <Text style={styles.setNumber}>SETS</Text>
                   <Text style={styles.setField}>LBS</Text>
@@ -353,6 +254,7 @@ export default function AddWorkoutScreen() {
                     </View>
                   </Swipeable>
                 ))}
+
                 <Pressable
                   style={styles.addSetButton}
                   onPress={() => addSet(exercise.id)}
@@ -382,56 +284,12 @@ export default function AddWorkoutScreen() {
         </Pressable>
 
         <Pressable
-          style={[
-            styles.saveButton,
-            saving && styles.saveButtonDisabled
-          ]}
-          disabled={saving}
-          onPress={handleCreateWorkout}>
-          <Text style={styles.saveButtonText}>
-            {saving ? "Saving..." : "Create Workout"}
-          </Text>
+          style={styles.saveButton}
+          onPress={handleFinish}
+          accessibilityRole="button">
+          <Text style={styles.saveButtonText}>Finish</Text>
         </Pressable>
-
-        {saveError ? (
-          <Text style={styles.saveErrorText}>{saveError}</Text>
-        ) : null}
       </ScrollView>
-
-      <Modal
-        visible={categoryOpen}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setCategoryOpen(false)}>
-        <Pressable
-          style={styles.modalBackdrop}
-          onPress={() => setCategoryOpen(false)}>
-          <View style={styles.modalCard}>
-            <Text style={styles.modalTitle}>
-              Select a category
-            </Text>
-
-            {CATEGORIES.map((option) => (
-              <Pressable
-                key={option}
-                style={styles.modalOption}
-                onPress={() => {
-                  setCategory(option);
-                  setCategoryOpen(false);
-                }}>
-                <Text
-                  style={
-                    category === option
-                      ? styles.modalOptionTextActive
-                      : styles.modalOptionText
-                  }>
-                  {option}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-        </Pressable>
-      </Modal>
 
       {libraryOpen ? (
         <AddExerciseModal
