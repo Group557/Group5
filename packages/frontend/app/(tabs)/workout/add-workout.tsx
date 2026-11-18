@@ -1,8 +1,10 @@
 import { globalStyles } from "@/constants/globalStyles";
 import { palette } from "@/constants/theme";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
+  ActionSheetIOS,
+  Alert,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -13,6 +15,7 @@ import {
   TextInput,
   View
 } from "react-native";
+import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import AddExerciseModal, {
@@ -20,6 +23,15 @@ import AddExerciseModal, {
 } from "../../../components/workout/add_exercise_modal";
 
 import { supabase } from "../../../../../utils/supabase";
+
+type WorkoutSet = {
+  id: string;
+  reps: string;
+  weight: string;
+};
+type WorkoutExercise = Exercise & {
+  sets: WorkoutSet[];
+};
 
 const CATEGORIES = [
   "Cardio / Aerobic",
@@ -33,19 +45,109 @@ const CATEGORIES = [
 
 export default function AddWorkoutScreen() {
   const insets = useSafeAreaInsets();
+  const nextSetId = useRef(1);
   const [workoutName, setWorkoutName] = useState("");
   const [category, setCategory] = useState("");
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [libraryOpen, setLibraryOpen] = useState(false);
   const [description, setDescription] = useState("");
   const [addedExercises, setAddedExercises] = useState<
-    Exercise[]
+    WorkoutExercise[]
   >([]);
   const addedIds = addedExercises.map(
     (exercise) => exercise.id
   );
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
+
+  const updateSet = (
+    exerciseId: number,
+    setId: string,
+    field: "reps" | "weight",
+    value: string
+  ) => {
+    setAddedExercises((current) =>
+      current.map((exercise) => {
+        if (exercise.id !== exerciseId) {
+          return exercise;
+        }
+
+        return {
+          ...exercise,
+          sets: exercise.sets.map((set) =>
+            set.id === setId ? { ...set, [field]: value } : set
+          )
+        };
+      })
+    );
+  };
+
+  const addSet = (exerciseId: number) => {
+    const newSet: WorkoutSet = {
+      id: `added-${nextSetId.current}`,
+      reps: "",
+      weight: ""
+    };
+
+    nextSetId.current += 1;
+
+    setAddedExercises((current) =>
+      current.map((exercise) =>
+        exercise.id === exerciseId
+          ? {
+              ...exercise,
+              sets: [...exercise.sets, newSet]
+            }
+          : exercise
+      )
+    );
+  };
+  const removeSet = (exerciseId: number, setId: string) => {
+    setAddedExercises((current) =>
+      current.map((exercise) =>
+        exercise.id === exerciseId
+          ? {
+              ...exercise,
+              sets: exercise.sets.filter(
+                (set) => set.id !== setId
+              )
+            }
+          : exercise
+      )
+    );
+  };
+
+  const removeExercise = (exerciseId: number) => {
+    setAddedExercises((current) =>
+      current.filter((exercise) => exercise.id !== exerciseId)
+    );
+  };
+  const openExerciseMenu = (exercise: WorkoutExercise) => {
+    if (Platform.OS === "ios") {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          title: exercise.exercise_name,
+          options: ["Cancel", "Delete"],
+          cancelButtonIndex: 0,
+          destructiveButtonIndex: 1
+        },
+        (buttonIndex) => {
+          if (buttonIndex === 1) {
+            removeExercise(exercise.id);
+          }
+        }
+      );
+    } else {
+      Alert.alert(exercise.exercise_name, "Exercise options", [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => removeExercise(exercise.id)
+        }
+      ]);
+    }
+  };
 
   const goBack = () => {
     if (router.canGoBack()) {
@@ -129,10 +231,6 @@ export default function AddWorkoutScreen() {
         </Pressable>
 
         <Text style={globalStyles.pageTitle}>New Workout</Text>
-        <Text style={[globalStyles.subtitle, styles.headerGap]}>
-          Name your workout, then select saved exercises from
-          your library to include.
-        </Text>
 
         <View style={styles.formCard}>
           <Text style={globalStyles.label}>Workout name</Text>
@@ -167,21 +265,102 @@ export default function AddWorkoutScreen() {
             </Text>
           ) : (
             addedExercises.map((exercise) => (
-              <View key={exercise.id} style={styles.addedRow}>
-                <Text style={styles.exerciseRowText}>
-                  {exercise.exercise_name}
-                </Text>
+              <View key={exercise.id}>
+                <View style={styles.addedRow}>
+                  <Text style={styles.exerciseRowText}>
+                    {exercise.exercise_name}
+                  </Text>
+                  <Pressable
+                    style={styles.exerciseMenuButton}
+                    onPress={() => openExerciseMenu(exercise)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Options for ${exercise.exercise_name}`}>
+                    <Text style={styles.exerciseMenuText}>
+                      ⋮
+                    </Text>
+                  </Pressable>
+                </View>
+                <View style={styles.setRow}>
+                  <Text style={styles.setNumber}>SETS</Text>
+                  <Text style={styles.setField}>LBS</Text>
+                  <Text style={styles.setField}>REPS</Text>
+                </View>
+
+                {exercise.sets.map((set, index) => (
+                  <Swipeable
+                    key={set.id}
+                    friction={2}
+                    rightThreshold={40}
+                    overshootRight={false}
+                    containerStyle={styles.swipeContainer}
+                    renderRightActions={() => (
+                      <Pressable
+                        style={styles.deleteSetButton}
+                        onPress={() =>
+                          removeSet(exercise.id, set.id)
+                        }
+                        accessibilityRole="button"
+                        accessibilityLabel={`Delete set ${index + 1}`}>
+                        <Text style={styles.deleteSetText}>
+                          Delete
+                        </Text>
+                      </Pressable>
+                    )}>
+                    <View
+                      style={[
+                        styles.setRow,
+                        styles.swipeSetRow
+                      ]}>
+                      <Text style={styles.setNumber}>
+                        {index + 1}
+                      </Text>
+
+                      <View style={styles.setField}>
+                        <TextInput
+                          style={globalStyles.input}
+                          value={set.weight}
+                          onChangeText={(value) =>
+                            updateSet(
+                              exercise.id,
+                              set.id,
+                              "weight",
+                              value
+                            )
+                          }
+                          keyboardType="decimal-pad"
+                          placeholder="0"
+                          accessibilityLabel={`Set ${index + 1} weight in pounds`}
+                        />
+                      </View>
+
+                      <View style={styles.setField}>
+                        <TextInput
+                          style={globalStyles.input}
+                          value={set.reps}
+                          onChangeText={(value) =>
+                            updateSet(
+                              exercise.id,
+                              set.id,
+                              "reps",
+                              value
+                            )
+                          }
+                          keyboardType="number-pad"
+                          placeholder="0"
+                          accessibilityLabel={`Set ${index + 1} reps`}
+                        />
+                      </View>
+                    </View>
+                  </Swipeable>
+                ))}
                 <Pressable
-                  onPress={() =>
-                    setAddedExercises((current) =>
-                      current.filter(
-                        (item) => item.id !== exercise.id
-                      )
-                    )
-                  }
+                  style={styles.addSetButton}
+                  onPress={() => addSet(exercise.id)}
                   accessibilityRole="button"
-                  accessibilityLabel={`Remove ${exercise.exercise_name}`}>
-                  <Text style={styles.addedRemove}>✕</Text>
+                  accessibilityLabel={`Add set to ${exercise.exercise_name}`}>
+                  <Text style={styles.addSetText}>
+                    + Add Set
+                  </Text>
                 </Pressable>
               </View>
             ))
@@ -259,7 +438,29 @@ export default function AddWorkoutScreen() {
           selectedExercises={addedExercises}
           onClose={() => setLibraryOpen(false)}
           onConfirm={(selected) => {
-            setAddedExercises(selected);
+            setAddedExercises((current) =>
+              selected.map((exercise) => {
+                const existing = current.find(
+                  (item) => item.id === exercise.id
+                );
+
+                if (existing) {
+                  return existing;
+                }
+
+                return {
+                  ...exercise,
+                  sets: [
+                    {
+                      id: "initial",
+                      reps: "",
+                      weight: ""
+                    }
+                  ]
+                };
+              })
+            );
+
             setLibraryOpen(false);
           }}
         />
@@ -281,6 +482,7 @@ const styles = StyleSheet.create({
     fontWeight: "700"
   },
   formCard: {
+    marginTop: 16,
     backgroundColor: palette.surface,
     borderRadius: 18,
     padding: 18
@@ -413,5 +615,60 @@ const styles = StyleSheet.create({
   },
   exerciseRowText: {
     flex: 1
+  },
+  setRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    marginBottom: 12
+  },
+  setField: {
+    flex: 1,
+    gap: 4
+  },
+  setNumber: {
+    width: 48,
+    textAlign: "center"
+  },
+  addSetButton: {
+    paddingVertical: 12,
+    alignItems: "center",
+    backgroundColor: palette.surfaceSage,
+    borderRadius: 8,
+    marginBottom: 16
+  },
+  addSetText: {
+    color: palette.forest,
+    fontWeight: "700"
+  },
+  swipeContainer: {
+    marginBottom: 12,
+    borderRadius: 8,
+    overflow: "hidden"
+  },
+  swipeSetRow: {
+    marginBottom: 0,
+    backgroundColor: palette.surface,
+    paddingVertical: 4
+  },
+  deleteSetButton: {
+    width: 80,
+    backgroundColor: palette.danger,
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  deleteSetText: {
+    color: "#FFFFFF",
+    fontWeight: "700"
+  },
+  exerciseMenuButton: {
+    width: 44,
+    height: 44,
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  exerciseMenuText: {
+    color: palette.ink,
+    fontSize: 26
   }
 });
