@@ -1,7 +1,10 @@
 import { useAuth } from "@/context/AuthProvider";
 import { router, useFocusEffect } from "expo-router";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import {
+  ActionSheetIOS,
+  Alert,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -52,13 +55,20 @@ function calculateVolume(workout: SavedWorkout): number {
 }
 
 export default function WorkoutHomePage() {
+  // State to track which workout is being deleted
+  const [deletingWorkoutId, setDeletingWorkoutId] = useState<
+    number | null
+  >(null);
+  const deleteInProgress = useRef(false);
+
+  // State to track which workouts are expanded
   const [expandedWorkoutIds, setExpandedWorkoutIds] = useState<
     Record<number, boolean>
   >({});
 
   const { session } = useAuth();
   const userId = session?.user.id;
-
+  // State to track workouts, loading state, and errors
   const [workouts, setWorkouts] = useState<SavedWorkout[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
@@ -156,6 +166,94 @@ export default function WorkoutHomePage() {
     }));
   };
 
+  const deleteWorkout = async (workout: SavedWorkout) => {
+    if (!userId || deleteInProgress.current) return;
+
+    deleteInProgress.current = true;
+    setDeletingWorkoutId(workout.id);
+
+    try {
+      const { data, error } = await supabase
+        .from("workouts")
+        .delete()
+        .eq("id", workout.id)
+        .eq("user_id", userId)
+        .select("id");
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      if (!data?.length) {
+        throw new Error(
+          "This workout could not be deleted. Refresh and try again."
+        );
+      }
+
+      setWorkouts((current) =>
+        current.filter((item) => item.id !== workout.id)
+      );
+
+      setExpandedWorkoutIds((current) => {
+        const updated = { ...current };
+        delete updated[workout.id];
+        return updated;
+      });
+    } catch (error) {
+      Alert.alert(
+        "Could not delete workout",
+        error instanceof Error
+          ? error.message
+          : "Please try again."
+      );
+    } finally {
+      deleteInProgress.current = false;
+      setDeletingWorkoutId(null);
+    }
+  };
+
+  const confirmDeleteWorkout = (workout: SavedWorkout) => {
+    Alert.alert(
+      "Delete workout?",
+      `Delete "${workout.workout_name}" and its recorded sets? This cannot be undone.`,
+      [
+        {
+          text: "Cancel",
+          style: "cancel"
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => {
+            void deleteWorkout(workout);
+          }
+        }
+      ]
+    );
+  };
+
+  const openWorkoutMenu = (workout: SavedWorkout) => {
+    if (deleteInProgress.current) return;
+
+    if (Platform.OS === "ios") {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          title: workout.workout_name,
+          options: ["Cancel", "Delete workout"],
+          cancelButtonIndex: 0,
+          destructiveButtonIndex: 1
+        },
+        (buttonIndex) => {
+          if (buttonIndex === 1) {
+            confirmDeleteWorkout(workout);
+          }
+        }
+      );
+    } else {
+      confirmDeleteWorkout(workout);
+    }
+  };
+
   return (
     <ScrollView
       style={globalStyles.screen}
@@ -242,10 +340,36 @@ export default function WorkoutHomePage() {
               <Text style={styles.workoutDate}>
                 {formattedDate}
               </Text>
+              {/* Workout header with name and menu button */}
+              <View style={styles.workoutHeader}>
+                <Text style={[styles.workoutName, { flex: 1 }]}>
+                  {workout.workout_name}
+                </Text>
+                {/* Menu button for workout options, currently for deleting */}
+                <Pressable
+                  onPress={() => openWorkoutMenu(workout)}
+                  disabled={deletingWorkoutId !== null}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Options for ${workout.workout_name}`}
+                  accessibilityState={{
+                    disabled: deletingWorkoutId !== null
+                  }}
+                  style={({ pressed }) => [
+                    styles.workoutMenuButton,
+                    pressed && globalStyles.pressed,
+                    deletingWorkoutId !== null && {
+                      opacity: 0.4
+                    }
+                  ]}>
+                  <Text style={styles.workoutMenuIcon}>⋮</Text>
+                </Pressable>
+              </View>
 
-              <Text style={styles.workoutName}>
-                {workout.workout_name}
-              </Text>
+              {deletingWorkoutId === workout.id && (
+                <Text style={styles.workoutDate}>
+                  Deleting...
+                </Text>
+              )}
 
               <Text style={styles.workoutVolume}>
                 Total volume:{" "}
@@ -389,5 +513,20 @@ const styles = StyleSheet.create({
     color: palette.forest,
     fontSize: 14,
     fontWeight: "700"
+  },
+  workoutHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12
+  },
+  workoutMenuButton: {
+    width: 44,
+    height: 44,
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  workoutMenuIcon: {
+    fontSize: 28,
+    color: palette.forest
   }
 });
