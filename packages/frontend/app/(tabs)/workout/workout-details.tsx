@@ -17,6 +17,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { globalStyles } from "@/constants/globalStyles";
 import { palette } from "@/constants/theme";
 import { useWorkoutDraft } from "@/context/WorkoutDraftProvider";
+import { supabase } from "../../../../../utils/supabase";
 
 // Move CATEGORIES here.
 const CATEGORIES = [
@@ -37,8 +38,13 @@ export default function WorkoutDetailsScreen() {
     setCategory,
     description,
     setDescription,
-    addedExercises
+    addedExercises,
+    resetDraft,
+    requestId
   } = useWorkoutDraft();
+
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
 
   const insets = useSafeAreaInsets();
   const [categoryOpen, setCategoryOpen] = useState(false);
@@ -89,18 +95,52 @@ export default function WorkoutDetailsScreen() {
 
     return null;
   };
-  const handleCheckWorkout = () => {
-    const error = validateWorkout();
+  const handleSaveWorkout = async () => {
+    const validationError = validateWorkout();
 
-    if (error) {
-      Alert.alert("Check your workout", error);
+    if (validationError) {
+      Alert.alert("Check your workout", validationError);
       return;
     }
 
-    Alert.alert(
-      "Workout checked",
-      "Your entries are valid. Nothing has been saved yet."
+    setSaving(true);
+    setSaveError("");
+
+    const exercises = addedExercises.map((exercise) => ({
+      exercise_id: exercise.id,
+      sets: exercise.sets.map((set) => ({
+        reps: Number(set.reps),
+        weight: Number(set.weight)
+      }))
+    }));
+
+    const { data, error } = await supabase.rpc(
+      "save_completed_workout",
+      {
+        p_request_id: requestId,
+        p_name: workoutName.trim(),
+        p_exercises: exercises,
+        p_category: category || null,
+        p_notes: description.trim() || null
+      }
     );
+
+    setSaving(false);
+
+    if (error) {
+      setSaveError(error.message);
+      return;
+    }
+
+    if (data == null) {
+      setSaveError(
+        "The workout was not saved. Please try again."
+      );
+      return;
+    }
+
+    resetDraft();
+    router.replace("/workout");
   };
 
   const goBack = () => {
@@ -158,17 +198,24 @@ export default function WorkoutDetailsScreen() {
             textAlignVertical="top"
           />
         </View>
+
         <Pressable
           style={[
             globalStyles.primaryButton,
-            styles.checkButton
+            styles.checkButton,
+            saving && { opacity: 0.6 }
           ]}
-          onPress={handleCheckWorkout}
+          onPress={handleSaveWorkout}
+          disabled={saving}
           accessibilityRole="button">
           <Text style={globalStyles.primaryButtonText}>
-            Check Workout
+            {saving ? "Saving..." : "Save Workout"}
           </Text>
         </Pressable>
+
+        {saveError ? (
+          <Text style={styles.saveErrorText}>{saveError}</Text>
+        ) : null}
       </ScrollView>
 
       <Modal
@@ -255,5 +302,10 @@ const styles = StyleSheet.create({
   },
   checkButton: {
     marginTop: 24
+  },
+  saveErrorText: {
+    color: palette.danger,
+    marginTop: 12,
+    textAlign: "center"
   }
 });

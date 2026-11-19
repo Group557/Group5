@@ -1,3 +1,6 @@
+import type { Exercise } from "@/components/workout/add_exercise_modal";
+import * as Crypto from "expo-crypto";
+
 import {
   createContext,
   useContext,
@@ -7,8 +10,6 @@ import {
   type ReactNode,
   type SetStateAction
 } from "react";
-
-import type { Exercise } from "@/components/workout/add_exercise_modal";
 
 export type WorkoutSet = {
   id: string;
@@ -33,6 +34,7 @@ type WorkoutDraftContextValue = {
   setAddedExercises: StateSetter<WorkoutExercise[]>;
   createSet: () => WorkoutSet;
   resetDraft: () => void;
+  requestId: string;
 };
 
 const WorkoutDraftContext =
@@ -62,12 +64,16 @@ export default function WorkoutDraftProvider({
     nextSetId.current += 1;
     return set;
   };
+  const [requestId, setRequestId] = useState(() =>
+    Crypto.randomUUID()
+  );
 
   const resetDraft = () => {
     setWorkoutName("");
     setCategory("");
     setDescription("");
     setAddedExercises([]);
+    setRequestId(Crypto.randomUUID());
   };
 
   return (
@@ -82,7 +88,8 @@ export default function WorkoutDraftProvider({
         addedExercises,
         setAddedExercises,
         createSet,
-        resetDraft
+        resetDraft,
+        requestId
       }}>
       {children}
     </WorkoutDraftContext.Provider>
