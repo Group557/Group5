@@ -1,6 +1,7 @@
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { globalStyles } from "@/constants/globalStyles";
 import { palette } from "@/constants/theme";
+import { signOutUser } from "@/utils/auth";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImageManipulator from "expo-image-manipulator";
 import * as ImagePicker from "expo-image-picker";
@@ -229,16 +230,19 @@ useFocusEffect(
   }, [loadProfile])
 );
 
-  async function handleSignOut() {
-    setSigningOut(true);
-    const { error } = await supabase.auth.signOut();
-    setSigningOut(false);
+async function handleSignOut() {
+  setSigningOut(true);
+  try {
+    const result = await signOutUser(supabase);
 
-    if (error) {
-      Alert.alert("Sign out failed", error.message);
+    if (!result.ok) {
+      showAlert("Sign out failed", result.message);
       return;
     }
     router.replace("/login");
+  } finally {
+    setSigningOut(false);
+  }
 }
 
 async function pickPhoto() {
