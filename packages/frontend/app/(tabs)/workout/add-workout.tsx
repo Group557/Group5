@@ -155,6 +155,10 @@ export default function AddWorkoutScreen() {
         </Pressable>
 
         <Text style={globalStyles.pageTitle}>New Workout</Text>
+        <Text style={[globalStyles.subtitle, styles.headerGap]}>
+          Build a workout that fits your goals !
+        </Text>
+
         <View style={styles.formCard}>
           <Text style={globalStyles.label}>Exercises</Text>
 
@@ -363,6 +367,10 @@ const styles = StyleSheet.create({
     color: palette.ink,
     fontSize: 15
   },
+  selectPlaceholder: {
+    color: "#9CA3AF",
+    fontSize: 15
+  },
   browseBlock: {
     backgroundColor: palette.surface,
     borderRadius: 18,
@@ -472,7 +480,8 @@ const styles = StyleSheet.create({
     fontWeight: "800"
   },
   exerciseRowText: {
-    flex: 1
+    flex: 1,
+    color: palette.ink
   },
   setRow: {
     flexDirection: "row",

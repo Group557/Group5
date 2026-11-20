@@ -1,4 +1,5 @@
 import { palette } from "@/constants/theme";
+import { filterExercises } from "@/utils/exerciseFiltering";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -93,10 +94,9 @@ export default function AddExerciseModal({
       return [...current, exercise];
     });
   }
-  const filteredExercises = exercises.filter((exercise) =>
-    exercise.exercise_name
-      .toLowerCase()
-      .includes(searchQuery.trim().toLowerCase())
+  const filteredExercises = filterExercises(
+    exercises,
+    searchQuery
   );
   return (
     <Modal
@@ -130,7 +130,10 @@ export default function AddExerciseModal({
           />
 
           {loading ? (
-            <ActivityIndicator size="large" color={palette.ink} />
+            <ActivityIndicator
+              size="large"
+              color={palette.ink}
+            />
           ) : error ? (
             <Text>{error}</Text>
           ) : (
