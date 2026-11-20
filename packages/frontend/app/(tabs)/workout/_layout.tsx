@@ -1,5 +1,10 @@
+import WorkoutDraftProvider from "@/context/WorkoutDraftProvider";
 import { Stack } from "expo-router";
 
 export default function WorkoutsLayout() {
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <WorkoutDraftProvider>
+      <Stack screenOptions={{ headerShown: false }} />
+    </WorkoutDraftProvider>
+  );
 }
