@@ -120,7 +120,7 @@ export default function AddExerciseModal({
 
           <TextInput
             style={styles.searchInput}
-            placeholder="Search exercises..."
+            placeholder="Search exercises or categories..."
             placeholderTextColor={palette.inkMuted}
             value={searchQuery}
             onChangeText={setSearchQuery}
