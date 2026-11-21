@@ -16,6 +16,10 @@ import { supabase } from "../../../../../utils/supabase";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import { globalStyles } from "@/constants/globalStyles";
 import { palette } from "@/constants/theme";
+import {
+  getWorkoutExerciseVisibility,
+  toggleWorkoutExerciseVisibility
+} from "@/utils/workoutExerciseVisibility";
 
 type SavedSet = {
   id: number;
@@ -160,10 +164,9 @@ export default function WorkoutHomePage() {
   };
 
   const toggleExercises = (workoutId: number) => {
-    setExpandedWorkoutIds((current) => ({
-      ...current,
-      [workoutId]: !current[workoutId]
-    }));
+    setExpandedWorkoutIds((current) =>
+      toggleWorkoutExerciseVisibility(current, workoutId)
+    );
   };
 
   const deleteWorkout = async (workout: SavedWorkout) => {
@@ -318,9 +321,14 @@ export default function WorkoutHomePage() {
           const expanded =
             expandedWorkoutIds[workout.id] ?? false;
 
-          const visibleExercises = expanded
-            ? workout.exercises
-            : workout.exercises.slice(0, 3);
+          const {
+            visibleExercises,
+            canViewMore,
+            hiddenExerciseCount
+          } = getWorkoutExerciseVisibility(
+            workout.exercises,
+            expanded
+          );
 
           const volume = calculateVolume(workout);
 
@@ -399,7 +407,7 @@ export default function WorkoutHomePage() {
                 ))}
               </View>
 
-              {workout.exercises.length > 3 ? (
+              {canViewMore ? (
                 <Pressable
                   style={styles.viewMoreButton}
                   onPress={() => toggleExercises(workout.id)}
@@ -413,7 +421,7 @@ export default function WorkoutHomePage() {
                   <Text style={styles.viewMoreText}>
                     {expanded
                       ? "View less"
-                      : `View more (${workout.exercises.length - 3})`}
+                      : `View more (${hiddenExerciseCount})`}
                   </Text>
                 </Pressable>
               ) : null}
