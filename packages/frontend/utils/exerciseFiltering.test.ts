@@ -15,3 +15,32 @@ test("filters exercises by a typed exercise name", () => {
     { id: 1, exercise_name: "3/4 Sit-Up" }
   ]);
 });
+
+//TDD
+test("filters exercises by a typed category", () => {
+  // Arrange
+  const exercises = [
+    {
+      id: 1,
+      exercise_name: "3/4 Sit-Up",
+      exercise_category: "strength"
+    },
+    {
+      id: 2,
+      exercise_name: "90/90 Hamstring",
+      exercise_category: "stretching"
+    }
+  ];
+
+  // Act
+  const result = filterExercises(exercises, "stretching");
+
+  // Assert
+  expect(result).toEqual([
+    {
+      id: 2,
+      exercise_name: "90/90 Hamstring",
+      exercise_category: "stretching"
+    }
+  ]);
+});

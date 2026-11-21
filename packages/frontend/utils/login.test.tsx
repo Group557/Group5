@@ -1,15 +1,22 @@
-import { fireEvent, render, screen } from "@testing-library/react-native";
+import {
+  fireEvent,
+  render,
+  screen
+} from "@testing-library/react-native";
 import { router } from "expo-router";
-import { supabase } from "../../../../utils/supabase";
-import LoginScreen from "./login";
+import { supabase } from "../../../utils/supabase";
+import LoginScreen from "../app/(login-registration)/login";
 
 // Fake Supabase so no network call happens.
 // signInWithPassword succeeds, then the profile lookup says "onboarded".
-jest.mock("../../../../utils/supabase", () => ({
+jest.mock("../../../utils/supabase", () => ({
   supabase: {
     auth: {
       signInWithPassword: jest.fn(() =>
-        Promise.resolve({ data: { user: { id: "user-1" } }, error: null })
+        Promise.resolve({
+          data: { user: { id: "user-1" } },
+          error: null
+        })
       ),
       signUp: jest.fn()
     },
@@ -17,7 +24,10 @@ jest.mock("../../../../utils/supabase", () => ({
       select: () => ({
         eq: () => ({
           single: () =>
-            Promise.resolve({ data: { onboarded: true }, error: null })
+            Promise.resolve({
+              data: { onboarded: true },
+              error: null
+            })
         })
       })
     }))
@@ -45,9 +55,11 @@ test("signs in with the typed email and password", async () => {
   await fireEvent.press(screen.getByText("Sign in"));
 
   // Assert
-  expect(supabase.auth.signInWithPassword).toHaveBeenCalledWith({
-    email: "student@calpoly.edu",
-    password: "secret123"
-  });
+  expect(supabase.auth.signInWithPassword).toHaveBeenCalledWith(
+    {
+      email: "student@calpoly.edu",
+      password: "secret123"
+    }
+  );
   expect(router.replace).toHaveBeenCalledWith("/home");
 });
